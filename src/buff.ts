@@ -17,12 +17,12 @@ export default class Buff extends Uint8Array {
   static hex = (x : string, s? : number) => new Buff(hexToBytes(x), s)
   static num = (x : number, s? : number) => new Buff(numToBytes(x), s)
   static big = (x : bigint, s? : number) => new Buff(bigToBytes(x), s)
-  static buf = (x : ArrayBufferLike, s? : number) => new Buff(x, s)
+  static buff = (x : ArrayBufferLike, s? : number) => new Buff(x, s)
   static json = (x : object) => new Buff(strToBytes(JSON.stringify(x)))
   static bech32 = (x : string) => new Buff(Bech32.decode(x))
   static base58 = (x : string) => new Buff(Base58.decode(x))
   static base64 = (x : string) => new Buff(Base64.decode(x))
-  static b64url = (x : string) => new Buff(Base64.decode(x))
+  // static b64url = (x : string) => new Buff(Base64.decode(x))
 
   toArr = () => Array.from(this)
   toStr = () => bytesToStr(this)
@@ -31,10 +31,10 @@ export default class Buff extends Uint8Array {
   toHex = () => bytesToHex(this)
   toJson = () => JSON.parse(bytesToStr(this))
   toBytes = () => new Uint8Array(this)
-  toBase32 = () => new Uint8Array(Bech32.encode(this))
-  toBase58 = () => new Uint8Array(Base58.encode(this))
-  toBase64 = () => new Uint8Array(Base64.encode(this))
-  toB64url = () => new Uint8Array(Base64.encode(this))
+  toBase32 = () => Bech32.encode(this)
+  toBase58 = () => Base58.encode(this)
+  toBase64 = () => Base64.encode(this)
+  // toB64url = () => Base64.encode(this)
 }
 
 function strToBytes(str : string) : ArrayBufferLike {
@@ -43,12 +43,13 @@ function strToBytes(str : string) : ArrayBufferLike {
 }
 
 function hexToBytes(str : string) : ArrayBufferLike {
-  const bytes = []; let i, idx
+  const bytes = []; let i, idx = 0
   if (str.length % 2) {
     throw new Error(`Invalid hex string length: ${str.length}`)
   }
-  for (i = 0, idx = 0; i < str.length; i += 2, idx++) {
-    bytes[idx] = parseInt(str.slice(i, 2), 16)
+  for (i = 0; i < str.length; i += 2) {
+    bytes[idx] = parseInt(str.slice(i, i + 2), 16)
+    idx += 1
   }
   return Uint8Array.from(bytes).buffer
 }

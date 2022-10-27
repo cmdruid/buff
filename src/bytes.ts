@@ -17,7 +17,7 @@ export default class Bytes extends Buff {
     return Bytes.of(...this, ...data)
   }
 
-  varInt(num : number) {
+  varint(num : number) {
     return Bytes.of(...this, ...Bytes.varint(num))
   }
 

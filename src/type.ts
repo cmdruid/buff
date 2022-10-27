@@ -1,6 +1,3 @@
-/* eslint-disable key-spacing */
-/* eslint-disable no-multi-spaces */
-
 interface TypeChecker {
   undefined : { k : string, v: (x : any) => boolean }
   infinity  : { k : string, v: (x : any) => boolean }
@@ -52,7 +49,7 @@ export default class Type {
         return k
       }
     }
-    return 'none'
+    return 'unknown'
   }
 }
 

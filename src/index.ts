@@ -9,3 +9,10 @@ export {
   Stream,
   Type
 }
+
+// export default {
+//   Buff,
+//   Bytes,
+//   Stream,
+//   Type
+// }

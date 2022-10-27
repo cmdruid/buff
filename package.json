@@ -1,8 +1,8 @@
 {
-  "name": "@cmdcode/lib-template",
+  "name": "@cmdcode/bytes-utils",
   "type": "module",
   "version": "1.0.0",
-  "description": "Template for building a modern Typescript library.",
+  "description": "Utility library for handling bytes.",
   "author": "Christopher Scott",
   "license": "CC-BY-1.0",
   "keywords": [
@@ -10,7 +10,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/cmdruid/library-template.git"
+    "url": "https://github.com/cmdruid/bytes-utils.git"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
