@@ -17,15 +17,26 @@ yarn add @cmdcode/bytes-utils | npm install @cmdcode/bytes-utils
 import { Buff } from '@cmdcode/bytes-utils'
 
 Buff
-  .str(strData)    => Buff<Uint8Array> => .toStr() => string
-  .hex(hexData)    => Buff<Uint8Array> => .toHex() => hexstring
-  .num(numData)    => Buff<Uint8Array> => .toNum() => number
-  .big(bigData)    => Buff<Uint8Array> => .toBig() => bigint
-  .buff(buffer)    => Buff<Uint8Array> => .toBytes() => Uint8Array
-  .json(jsonData)  => Buff<Uint8Array> => .toJson()  => object
-  .bech32(strData) => Buff<Uint8Array> => .toBech32() => b32string
-  .base58(strData) => Buff<Uint8Array> => .toBase58() => b58string
-  .base64(strData) => Buff<Uint8Array> => .toBase64() => b64string
+  .str(strData)    => Buff<Uint8Array>
+  .hex(hexData)    => Buff<Uint8Array>
+  .num(numData)    => Buff<Uint8Array>
+  .big(bigData)    => Buff<Uint8Array>
+  .buff(buffer)    => Buff<Uint8Array>
+  .json(jsonData)  => Buff<Uint8Array>
+  .bech32(strData) => Buff<Uint8Array>
+  .base58(strData) => Buff<Uint8Array>
+  .base64(strData) => Buff<Uint8Array>
+
+new Buff(data: ArrayBufferLike, size: number)
+  .toStr()    => string
+  .toHex()    => hexstring
+  .toNum()    => number
+  .toBig()    => bigint
+  .toBytes()  => Uint8Array
+  .toJson()   => object
+  .toBech32() => b32string
+  .toBase58() => b58string
+  .toBase64() => b64string
 ```
 
 ```ts
