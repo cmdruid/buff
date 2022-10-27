@@ -10,19 +10,16 @@ export default class Stream {
     this.size = this.data.length
   }
 
-  peek(size : number, reverse : boolean = false) {
+  peek(size : number) {
     if (size > this.size) {
       throw new Error(`Size greater than stream: ${size} > ${this.size}`)
     }
-    const chunk = (reverse)
-      ? this.data.slice(0, size).reverse()
-      : this.data.slice(0, size)
-    return Bytes.from(chunk)
+    return new Bytes(this.data.slice(0, size).buffer)
   }
 
-  read(size : number, reverse : boolean = false) {
+  read(size : number) {
     size = size || this.varint()
-    const chunk = this.peek(size, reverse)
+    const chunk = this.peek(size)
     this.data = this.data.slice(size)
     this.size = this.data.length
     return chunk
