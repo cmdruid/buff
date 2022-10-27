@@ -2,11 +2,16 @@
   "name": "@cmdcode/bytes-utils",
   "type": "module",
   "version": "1.0.0",
-  "description": "Utility library for handling bytes.",
+  "description": "Cross-platform utility library for working with byte-arrays and moving between formats.",
   "author": "Christopher Scott",
   "license": "CC-BY-1.0",
   "keywords": [
-    "library"
+    "bytes",
+    "buffer",
+    "bech32",
+    "base58",
+    "base64",
+    "convert"
   ],
   "repository": {
     "type": "git",
@@ -42,6 +47,7 @@
     "@rollup/plugin-typescript": "^9.0.2",
     "@types/tape": "^4.13.2",
     "@typescript-eslint/eslint-plugin": "*",
+    "buffer": "^6.0.3",
     "camelcase": "^7.0.0",
     "eslint": "*",
     "eslint-config-prettier": "^8.5.0",
