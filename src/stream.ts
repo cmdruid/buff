@@ -1,4 +1,4 @@
-import Bytes from './bytes.js'
+import Buff from './buff.js'
 
 export default class Stream {
 
@@ -14,7 +14,7 @@ export default class Stream {
     if (size > this.size) {
       throw new Error(`Size greater than stream: ${size} > ${this.size}`)
     }
-    return new Bytes(this.data.slice(0, size).buffer)
+    return new Buff(this.data.slice(0, size).buffer)
   }
 
   read(size : number) {
