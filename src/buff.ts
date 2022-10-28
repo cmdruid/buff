@@ -24,16 +24,16 @@ export default class Buff extends Uint8Array {
   static base64 = (x : string) => new Buff(Base64.decode(x))
   // static b64url = (x : string) => new Buff(Base64.decode(x))
 
-  toArr = () => Array.from(this)
-  toStr = () => bytesToStr(this)
-  toNum = () => bytesToNum(this)
-  toBig = () => bytesToBig(this)
-  toHex = () => bytesToHex(this)
-  toJson = () => JSON.parse(bytesToStr(this))
-  toBytes = () => new Uint8Array(this)
-  toBase32 = () => Bech32.encode(this)
-  toBase58 = () => Base58.encode(this)
-  toBase64 = () => Base64.encode(this)
+  toArr() { Array.from(this) }
+  toStr() { return bytesToStr(this) }
+  toNum() { return bytesToNum(this) }
+  toBig() { return bytesToBig(this) }
+  toHex() { return bytesToHex(this) }
+  toJson() { return JSON.parse(bytesToStr(this)) }
+  toBytes() { return new Uint8Array(this) }
+  toBase32() { return Bech32.encode(this) }
+  toBase58() { return Base58.encode(this) }
+  toBase64() { return Base64.encode(this) }
   // toB64url = () => Base64.encode(this)
 }
 

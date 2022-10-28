@@ -1,17 +1,19 @@
 interface TypeChecker {
-  undefined : { k : string, v: (x : any) => boolean }
-  infinity  : { k : string, v: (x : any) => boolean }
-  null      : { k : string, v: (x : any) => boolean }
-  hex       : { k : string, v: (x : any) => boolean }
-  string    : { k : string, v: (x : any) => boolean }
-  bigint    : { k : string, v: (x : any) => boolean }
-  number    : { k : string, v: (x : any) => boolean }
-  array     : { k : string, v: (x : any) => boolean }
-  uint8     : { k : string, v: (x : any) => boolean }
-  uint16    : { k : string, v: (x : any) => boolean }
-  uint32    : { k : string, v: (x : any) => boolean }
-  buffer    : { k : string, v: (x : any) => boolean }
-  object    : { k : string, v: (x : any) => boolean }
+  undefined : (x : any) => boolean
+  infinity  : (x : any) => boolean
+  null      : (x : any) => boolean
+  hex       : (x : any) => boolean
+  string    : (x : any) => boolean
+  bigint    : (x : any) => boolean
+  number    : (x : any) => boolean
+  array     : (x : any) => boolean
+  uint8     : (x : any) => boolean
+  uint16    : (x : any) => boolean
+  uint32    : (x : any) => boolean
+  buffer    : (x : any) => boolean
+  class     : (x : any) => boolean
+  function  : (x : any) => boolean
+  object    : (x : any) => boolean
 }
 
 interface ArrayChecker {
@@ -22,25 +24,27 @@ interface ArrayChecker {
 
 export default class Type {
   static is : TypeChecker = {
-    undefined : { k: 'undefined', v: x => typeof x === 'undefined' },
-    infinity  : { k: 'infinity',  v: x => x === Infinity },
-    null   : { k: 'null', v: x => x === null },
-    hex    : { k: 'hex',  v: x => isHex(x) },
-    string : { k: 'string', v: x => typeof x === 'string' },
-    bigint : { k: 'bigint', v: x => typeof x === 'bigint' },
-    number : { k: 'number', v: x => typeof x === 'number' },
-    array  : { k: 'array',  v: x => Array.isArray(x) },
-    uint8  : { k: 'uint8',  v: x => x instanceof Uint8Array },
-    uint16 : { k: 'uint16', v: x => x instanceof Uint16Array },
-    uint32 : { k: 'uint32', v: x => x instanceof Uint32Array },
-    buffer : { k: 'buffer', v: x => x instanceof ArrayBuffer },
-    object : { k: 'object', v: x => typeof x === 'object' }
+    null      : x => x === null,
+    undefined : x => typeof x === 'undefined',
+    hex       : x => isHex(x),
+    string    : x => typeof x === 'string',
+    infinity  : x => x === Infinity,
+    bigint    : x => typeof x === 'bigint',
+    number    : x => typeof x === 'number',
+    class     : x => typeof x.prototype === 'object',
+    function  : x => typeof x === 'function',
+    uint8  : x => x instanceof Uint8Array,
+    uint16 : x => x instanceof Uint16Array,
+    uint32 : x => x instanceof Uint32Array,
+    buffer : x => x instanceof ArrayBuffer,
+    array  : x => Array.isArray(x),
+    object : x => typeof x === 'object'
   }
 
   static array : ArrayChecker = {
-    isString: x => x.every((e : any) => Type.is.string.v(e)),
-    isNumber: x => x.every((e : any) => Type.is.number.v(e)),
-    isBigint: x => x.every((e : any) => Type.is.bigint.v(e))
+    isString: x => x.every((e : any) => Type.is.string(e)),
+    isNumber: x => x.every((e : any) => Type.is.number(e)),
+    isBigint: x => x.every((e : any) => Type.is.bigint(e))
   }
 
   static of(x : any) {

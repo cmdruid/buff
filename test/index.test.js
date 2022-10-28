@@ -1,44 +1,21 @@
 import tape from 'tape'
+import Type from '../src/type.js'
 import camelcase from 'camelcase'
 import pkg from '../package.json' assert { type: 'json' }
 
+const SOURCE_PATH = './src'
+const DEFAULT_EXT = 'test.js'
 const DEFAULT_LIB = 'src/index.js'
-const EXT = 'test.js'
 
-const libName = camelcase(String('/' + pkg.name).split('/').at(-1))
+runTests()
 
-tape(`Running tests for ${libName}`, async t => {
-  
-  const mainLib = await getLibrary()
+async function runTests() {
+  const libName = camelcase(String('/' + pkg.name).split('/').at(-1))
+  const mainLib = await getLibrary(libName)
+  await crawlAPI(mainLib)
+}
 
-  for (const key of Object.keys(mainLib)) {
-    try {
-      // Import testing library if available.
-      const tests = await import(`./src/${key.toLowerCase()}.${EXT}`)
-      // Check for instance tests.
-      if (typeof tests[key] === 'function') {
-        // Run instance tests.
-        t.test(`Performing instance tests for ${key}`, t => {
-          tests[key](t, mainLib[key])
-        })
-      }
-      // Check for static tests.
-      for (const testName of Object.keys(tests)) {
-        // Run static tests.
-        const testedLib = mainLib[key][testName]
-        if (typeof testedLib === 'function') {
-          t.test(`Performing tests for ${key}.${testName}:`, t => {
-            tests[testName](t, testedLib)
-          })
-        }
-      }
-    } catch (err) {
-      console.log(`Failed to load tests for ${key}. Skipping ...`)
-    }
-  }
-})
-
-async function getLibrary() {
+async function getLibrary(libName) {
   if (typeof window !== 'undefined') {
     return window[libName]
   }
@@ -57,5 +34,52 @@ async function getLibrary() {
     return (m.default)
       ? m.default
       : m
+  })
+}
+
+function crawlAPI(lib, paths = []) {
+  for (const [key, val] of Object.entries(lib)) {
+
+    if (Type.is.class(val)) {
+      const newpath = [...paths, key]
+      testInstance(val, newpath)
+      crawlAPI(val, newpath)
+      console.log('Registering tests for class:', key)
+    }
+
+    else if (Type.is.function(val)) {
+      testLoader(key, val, paths)
+    }
+
+    else if (Type.is.object(val)) {
+      const newpath = [...paths, key]
+      return crawlAPI(val, newpath)
+    }
+
+    else {
+      console.log(paths, val)
+    }
+  }
+}
+
+function testInstance(val, paths) {
+  const newpath = [...paths, 'new']
+  for (const prop of Object.getOwnPropertyNames(val.prototype)) {
+    testLoader(prop, val, newpath)
+  }
+}
+
+function testLoader(key, val, paths) {
+  const relpath  = paths.join('/').toLowerCase()
+  const fullpath = `${SOURCE_PATH}/${relpath}/${key}.${DEFAULT_EXT}`
+  //console.log(`Testing: ${fullpath}`)
+  import(fullpath)
+    .then(test => testRunner(test.default, val, fullpath))
+    .catch(err => err) //console.log(`Failed to import test for: ${fullpath}`))
+}
+
+function testRunner(test, lib, path) {
+  tape(`Testing: ${path}`, t => {
+    test(t, lib)
   })
 }

@@ -17,6 +17,11 @@ export default class Bytes extends Buff {
     return Bytes.of(...this, ...data)
   }
 
+  slice(start? : number, end? : number) : Bytes {
+    const tmp = new Uint8Array(this.buffer).slice(start, end)
+    return new Bytes(tmp.buffer)
+  }
+
   varint(num : number) {
     return Bytes.of(...this, ...Bytes.varint(num))
   }
