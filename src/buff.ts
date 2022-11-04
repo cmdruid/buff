@@ -1,6 +1,5 @@
-import Bech32 from './format/bech32.js'
-import Base58 from './format/base58.js'
-import Base64 from './format/base64.js'
+import Bech32 from './bech32.js'
+import BaseX  from './basex.js'
 
 export default class Buff extends Uint8Array {
   constructor(data : ArrayBufferLike, size? : number) {
@@ -20,9 +19,9 @@ export default class Buff extends Uint8Array {
   static buff = (x : ArrayBufferLike, s? : number) => new Buff(x, s)
   static json = (x : object) => new Buff(strToBytes(JSON.stringify(x)))
   static bech32 = (x : string) => new Buff(Bech32.decode(x))
-  static base58 = (x : string) => new Buff(Base58.decode(x))
-  static base64 = (x : string) => new Buff(Base64.decode(x))
-  // static b64url = (x : string) => new Buff(Base64.decode(x))
+  static base58 = (x : string) => new Buff(BaseX.decode(x, 'base58'))
+  static base64 = (x : string) => new Buff(BaseX.decode(x, 'base64'))
+  static b64url = (x : string) => new Buff(BaseX.decode(x, 'base64url'))
 
   toArr() { Array.from(this) }
   toStr() { return bytesToStr(this) }
@@ -32,9 +31,9 @@ export default class Buff extends Uint8Array {
   toJson() { return JSON.parse(bytesToStr(this)) }
   toBytes() { return new Uint8Array(this) }
   toBase32() { return Bech32.encode(this) }
-  toBase58() { return Base58.encode(this) }
-  toBase64() { return Base64.encode(this) }
-  // toB64url = () => Base64.encode(this)
+  toBase58() { return BaseX.encode(this, 'base58') }
+  toBase64(padding? : boolean) { return BaseX.encode(this, 'base64', padding) }
+  toB64url() { return BaseX.encode(this, 'base64url') }
 
   prepend(data : Uint8Array) {
     return Buff.of(...data, ...this)
