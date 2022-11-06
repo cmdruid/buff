@@ -30,7 +30,10 @@ const is : TypeChecker = {
     infinity  : x => x === Infinity,
     bigint    : x => typeof x === 'bigint',
     number    : x => typeof x === 'number',
-    class     : x => typeof x.prototype === 'object',
+    class     : x => (
+      typeof x.prototype === 'object' 
+      && x.toString().startsWith('class')
+    ),
     function  : x => typeof x === 'function',
     uint8  : x => x instanceof Uint8Array,
     uint16 : x => x instanceof Uint16Array,
