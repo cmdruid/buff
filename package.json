@@ -1,7 +1,7 @@
 {
   "name": "@cmdcode/bytes-utils",
   "type": "module",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Cross-platform utility library for working with byte-arrays and moving between formats.",
   "author": "Christopher Scott",
   "license": "CC-BY-1.0",
@@ -27,9 +27,12 @@
     "dist"
   ],
   "main": "dist/main.js",
-  "module": "dist/module.js",
   "unpkg": "dist/bundle.min.js",
   "types": "dist/types/index.d.ts",
+  "exports": {
+    "import": "./dist/module.js",
+    "require": "./dist/main.js"
+  },
   "scripts": {
     "build": "rollup -c rollup.config.ts --configPlugin typescript",
     "clean": "rm -rf dist/* coverage .nyc_output",
