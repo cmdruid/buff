@@ -1,7 +1,3 @@
-const BaseX = {
-  encode,
-  decode
-}
 
 interface Alphabet {
   name    : string
@@ -38,30 +34,34 @@ function encode(
   padding : boolean = false
 ) : string {
   const alphabet = getAlphabet(charset)
-  const len = alphabet.length
-  const d : number[] = []
 
-  let s = ''
-  let i, j = 0, c, n
+  const len : number   = alphabet.length
+  const d   : number[] = []
+
+  let s : string = '',
+      i : number,
+      j : number = 0, 
+      c : number,
+      n : number
 
   for (i = 0; i < data.length; i++) {
     j = 0
     c = data[i]
-    s += c || s.length ^ i ? '' : 1
-    while (j in d || c) {
+    s += (c > 0 || (s.length ^ i) > 0) ? '' : '1'
+    while (j in d || c > 0) {
       n = d[j]
-      n = n ? n * 256 + c : c
+      n = n > 0? n * 256 + c : c
       c = n / len | 0
       d[j] = n % len
       j++
     }
   }
 
-  while (j--) {
+  while (j-- > 0) {
     s += alphabet[d[j]]
   }
 
-  return (padding && s.length % 4)
+  return (padding && s.length % 4 > 0)
     ? s + '='.repeat(4 - s.length % 4)
     : s
 }
@@ -71,12 +71,17 @@ function decode(
   charset : string
 ) : Uint8Array {
   const alphabet = getAlphabet(charset)
-  const len = alphabet.length
-  const d : number[] = [], b = []
+
+  const len : number   = alphabet.length,
+        d   : number[] = [],
+        b   : number[] = []
 
   encoded = encoded.replace('=', '')
 
-  let i, j = 0, c, n
+  let i : number, 
+      j : number = 0, 
+      c : number, 
+      n : number
 
   for (i = 0; i < encoded.length; i++) {
     j = 0
@@ -86,22 +91,27 @@ function decode(
       throw new Error(`Character range out of bounds: ${c}`)
     }
 
-    i = (c || b.length ^ i) ? i : b.push(0)
+    i = (c > 0 || (b.length ^ i) > 0) ? i : b.push(0)
 
-    while (j in d || c) {
+    while (j in d || c > 0) {
       n = d[j]
-      n = n ? n * len + c : c
+      n = n > 0 ? n * len + c : c
       c = n >> 8
       d[j] = n % 256
       j++
     }
   }
 
-  while (j--) {
+  while (j-- > 0) {
     b.push(d[j])
   }
 
   return Uint8Array.from(b)
+}
+
+const BaseX = {
+  encode,
+  decode
 }
 
 export default BaseX

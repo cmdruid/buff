@@ -10,22 +10,22 @@ export default class Stream {
     this.size = this.data.length
   }
 
-  peek(size : number) {
+  peek(size : number) : Buff {
     if (size > this.size) {
       throw new Error(`Size greater than stream: ${size} > ${this.size}`)
     }
     return new Buff(this.data.slice(0, size).buffer)
   }
 
-  read(size : number) {
-    size = size || this.varint()
+  read(size : number) : Buff {
+    size = size ?? this.varint()
     const chunk = this.peek(size)
     this.data = this.data.slice(size)
     this.size = this.data.length
     return chunk
   }
 
-  varint() {
+  varint() : number {
     const num = this.read(1).toNum()
     switch (true) {
       case (num >= 0 && num < 0xFD):

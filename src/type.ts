@@ -22,8 +22,7 @@ interface ArrayChecker {
   isBigint : (x : any[]) => boolean
 }
 
-export default class Type {
-  static is : TypeChecker = {
+const is : TypeChecker = {
     null      : x => x === null,
     undefined : x => typeof x === 'undefined',
     hex       : x => isHex(x),
@@ -41,23 +40,22 @@ export default class Type {
     object : x => typeof x === 'object'
   }
 
-  static array : ArrayChecker = {
-    isString: x => x.every((e : any) => Type.is.string(e)),
-    isNumber: x => x.every((e : any) => Type.is.number(e)),
-    isBigint: x => x.every((e : any) => Type.is.bigint(e))
-  }
-
-  static of(x : any) {
-    for (const [k,v] of Object.entries(Type.is)) {
-      if (v(x)) {
-        return k
-      }
-    }
-    return 'unknown'
-  }
+const array : ArrayChecker = {
+  isString: x => x.every((e : any) => is.string(e)),
+  isNumber: x => x.every((e : any) => is.number(e)),
+  isBigint: x => x.every((e : any) => is.bigint(e))
 }
 
-function isHex(str : string) {
+const of = (x : any) : string => {
+  for (const [k,v] of Object.entries(is)) {
+    if (v(x) === true) {
+      return k
+    }
+  }
+  return 'unknown'
+}
+
+function isHex(str : string) : boolean {
   switch (true) {
     case (typeof str !== 'string'):
       return false
@@ -69,3 +67,11 @@ function isHex(str : string) {
       return true
   }
 }
+
+const Type = {
+  of,
+  array, 
+  is
+}
+
+export default Type

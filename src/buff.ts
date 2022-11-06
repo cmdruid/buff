@@ -3,7 +3,7 @@ import BaseX  from './basex.js'
 
 export default class Buff extends Uint8Array {
   constructor(data : ArrayBufferLike, size? : number) {
-    if (size) {
+    if (size !== undefined) {
       const tmp = new Uint8Array(size).fill(0)
       tmp.set(new Uint8Array(data))
       data = tmp.buffer
@@ -12,34 +12,34 @@ export default class Buff extends Uint8Array {
     return this
   }
 
-  static str = (x : string, s? : number) => new Buff(strToBytes(x), s)
-  static hex = (x : string, s? : number) => new Buff(hexToBytes(x), s)
-  static num = (x : number, s? : number) => new Buff(numToBytes(x), s)
-  static big = (x : bigint, s? : number) => new Buff(bigToBytes(x), s)
-  static buff = (x : ArrayBufferLike, s? : number) => new Buff(x, s)
-  static json = (x : object) => new Buff(strToBytes(JSON.stringify(x)))
-  static bech32 = (x : string) => new Buff(Bech32.decode(x))
-  static base58 = (x : string) => new Buff(BaseX.decode(x, 'base58'))
-  static base64 = (x : string) => new Buff(BaseX.decode(x, 'base64'))
-  static b64url = (x : string) => new Buff(BaseX.decode(x, 'base64url'))
+  static str = (x : string, s? : number) : Buff => new Buff(strToBytes(x), s)
+  static hex = (x : string, s? : number) : Buff => new Buff(hexToBytes(x), s)
+  static num = (x : number, s? : number) : Buff => new Buff(numToBytes(x), s)
+  static big = (x : bigint, s? : number) : Buff => new Buff(bigToBytes(x), s)
+  static buff = (x : ArrayBufferLike, s? : number) : Buff => new Buff(x, s)
+  static json = (x : object) : Buff => new Buff(strToBytes(JSON.stringify(x)))
+  static bech32 = (x : string) : Buff => new Buff(Bech32.decode(x))
+  static base58 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base58'))
+  static base64 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64'))
+  static b64url = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64url'))
 
-  toArr() { Array.from(this) }
-  toStr() { return bytesToStr(this) }
-  toNum() { return bytesToNum(this) }
-  toBig() { return bytesToBig(this) }
-  toHex() { return bytesToHex(this) }
-  toJson() { return JSON.parse(bytesToStr(this)) }
-  toBytes() { return new Uint8Array(this) }
-  toBase32() { return Bech32.encode(this) }
-  toBase58() { return BaseX.encode(this, 'base58') }
-  toBase64(padding? : boolean) { return BaseX.encode(this, 'base64', padding) }
-  toB64url() { return BaseX.encode(this, 'base64url') }
+  toArr() : number[] { return Array.from(this) }
+  toStr() : string { return bytesToStr(this) }
+  toNum() : number { return bytesToNum(this) }
+  toBig() : bigint { return bytesToBig(this) }
+  toHex() : string { return bytesToHex(this) }
+  toJson() : object { return JSON.parse(bytesToStr(this)) }
+  toBytes() : Uint8Array { return new Uint8Array(this) }
+  toBase32() : string { return Bech32.encode(this) }
+  toBase58() : string { return BaseX.encode(this, 'base58') }
+  toBase64(padding? : boolean) : string { return BaseX.encode(this, 'base64', padding) }
+  toB64url() : string { return BaseX.encode(this, 'base64url') }
 
-  prepend(data : Uint8Array) {
+  prepend(data : Uint8Array) : Buff{
     return Buff.of(...data, ...this)
   }
 
-  append(data : Uint8Array) {
+  append(data : Uint8Array) : Buff {
     return Buff.of(...this, ...data)
   }
 
@@ -52,19 +52,19 @@ export default class Buff extends Uint8Array {
     this.set(bytes, offset)
   }
 
-  varint(num : number) {
+  varint(num : number) : Buff {
     return Buff.of(...this, ...Buff.varint(num))
   }
 
-  static from(data : Uint8Array) {
+  static from(data : Uint8Array) : Buff {
     return new Buff(Uint8Array.from(data).buffer)
   }
 
-  static of(...args : number[]) {
+  static of(...args : number[]) : Buff {
     return new Buff(Uint8Array.of(...args).buffer)
   }
 
-  static join(arr : Uint8Array[]) {
+  static join(arr : Uint8Array[]) : Buff {
     let i, idx = 0
     const totalSize = arr.reduce((prev, curr) => prev + curr.length, 0)
     const totalBytes = new Uint8Array(totalSize)
@@ -76,7 +76,7 @@ export default class Buff extends Uint8Array {
     return new Buff(totalBytes, totalSize)
   }
 
-  static varint(num : number) {
+  static varint(num : number) : Buff {
     if (num < 0xFD) {
       return Buff.num(num, 1)
     } else if (num < 0x10000) {
@@ -98,7 +98,7 @@ function strToBytes(str : string) : ArrayBufferLike {
 
 function hexToBytes(str : string) : ArrayBufferLike {
   const bytes = []; let i, idx = 0
-  if (str.length % 2) {
+  if (str.length % 2 > 0) {
     throw new Error(`Invalid hex string length: ${str.length}`)
   }
   for (i = 0; i < str.length; i += 2) {
