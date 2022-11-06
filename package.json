@@ -1,7 +1,7 @@
 {
   "name": "@cmdcode/bytes-utils",
   "type": "module",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Cross-platform utility library for working with byte-arrays and moving between formats.",
   "author": "Christopher Scott",
   "license": "CC-BY-1.0",
@@ -41,7 +41,8 @@
     "lint": "eslint . --ext .ts",
     "tape": "node --loader ts-node/esm --no-warnings test/index.test.js",
     "test": "nyc --reporter=lcov --require ts-node/register yarn tape | tap-spec; nyc report ---reporter=text",
-    "types": "tsc"
+    "types": "tsc",
+    "release": "yarn clean && yarn types && yarn lint && yarn build && yarn test"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.2",
