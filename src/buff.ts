@@ -18,7 +18,7 @@ export default class Buff extends Uint8Array {
   static big = (x : bigint, s? : number) : Buff => new Buff(bigToBytes(x), s)
   static buff = (x : ArrayBufferLike, s? : number) : Buff => new Buff(x, s)
   static json = (x : object) : Buff => new Buff(strToBytes(JSON.stringify(x)))
-  static bech32 = (x : string) : Buff => new Buff(Bech32.decode(x))
+  static bech32 = (x : string, v : number) : Buff => new Buff(Bech32.decode(x, v))
   static base58 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base58'))
   static base64 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64'))
   static b64url = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64url'))
@@ -30,7 +30,7 @@ export default class Buff extends Uint8Array {
   toHex() : string { return bytesToHex(this) }
   toJson() : object { return JSON.parse(bytesToStr(this)) }
   toBytes() : Uint8Array { return new Uint8Array(this) }
-  toBase32() : string { return Bech32.encode(this) }
+  toBech32(hrp : string, v : number) : string { return Bech32.encode(this, hrp ,v) }
   toBase58() : string { return BaseX.encode(this, 'base58') }
   toBase64(padding? : boolean) : string { return BaseX.encode(this, 'base64', padding) }
   toB64url() : string { return BaseX.encode(this, 'base64url') }
