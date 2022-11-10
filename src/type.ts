@@ -31,7 +31,7 @@ const is : TypeChecker = {
     bigint    : x => typeof x === 'bigint',
     number    : x => typeof x === 'number',
     class     : x => (
-      typeof x.prototype === 'object' 
+      typeof x?.prototype === 'object' 
       && x.toString().startsWith('class')
     ),
     function  : x => typeof x === 'function',
