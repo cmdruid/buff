@@ -1,6 +1,15 @@
 import tape from 'tape'
-import APICrawler from './api.test.js'
+import APICrawler from './src/api.test.js'
+import integrityTest from './src/integrity.test.js'
 
-tape('Testing API', async t => {
-  await APICrawler(t)
+tape('Bytes-utils Test Suite', async t => {
+
+  t.test('API Tests', async t => {
+    await APICrawler(t)
+  })
+
+  t.test('Integrity Tests', t => {
+     integrityTest(t)
+  })
+  
 })

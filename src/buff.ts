@@ -4,13 +4,17 @@ import BaseX  from './basex.js'
 export default class Buff extends Uint8Array {
   constructor(
     data : ArrayBufferLike, 
-    size : number | null = null
+    size : number | null = null,
+    orient : 'le' | 'be' = 'be'
   ) {
     if (size !== null) {
       const tmp = new Uint8Array(size).fill(0)
       tmp.set(new Uint8Array(data))
       data = tmp.buffer
     }
+    data = (orient === 'le') 
+      ? new Uint8Array(data).reverse() 
+      : data
     super(data)
     return this
   }
@@ -20,9 +24,7 @@ export default class Buff extends Uint8Array {
     size?  : number | null,
     orient : 'le' | 'be' = 'le'
   ) : Buff => {
-    return (orient === 'le')
-      ? new Buff(numToBytes(number).reverse(), size)
-      : new Buff(numToBytes(number), size)
+    return new Buff(numToBytes(number), size, orient)
   }
 
   static big = (
@@ -30,9 +32,7 @@ export default class Buff extends Uint8Array {
     size?  : number | null,
     orient : 'le' | 'be' = 'le'
   ) : Buff => {
-    return (orient === 'le')
-      ? new Buff(bigToBytes(number).reverse(), size)
-      : new Buff(bigToBytes(number), size)
+    return new Buff(bigToBytes(number), size, orient)
   }
 
   static buff = (x : ArrayBufferLike, s? : number) : Buff => new Buff(x, s)
@@ -45,13 +45,13 @@ export default class Buff extends Uint8Array {
   static b64url = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64url'))
 
   toNum(orient : 'le' | 'be' = 'le') : number { 
-    return (orient === 'be')
+    return (orient === 'le')
       ? bytesToNum(this.reverse()) 
       : bytesToNum(this) 
   }
 
   toBig(orient : 'le' | 'be' = 'le') : bigint { 
-    return (orient === 'be')
+    return (orient === 'le')
       ? bytesToBig(this.reverse())
       : bytesToBig(this)
   }
@@ -66,7 +66,7 @@ export default class Buff extends Uint8Array {
   toBase64(padding? : boolean) : string { return BaseX.encode(this, 'base64', padding) }
   toB64url() : string { return BaseX.encode(this, 'base64url') }
 
-  prepend(data : Uint8Array) : Buff{
+  prepend(data : Uint8Array) : Buff {
     return Buff.of(...data, ...this)
   }
 
@@ -75,8 +75,11 @@ export default class Buff extends Uint8Array {
   }
 
   slice(start? : number, end? : number) : Buff {
-    const tmp = new Uint8Array(this.buffer).slice(start, end)
-    return new Buff(tmp.buffer)
+    return new Buff(new Uint8Array(this).slice(start, end))
+  }
+
+  reverse() : Buff {
+    return new Buff(new Uint8Array(this).reverse())
   }
 
   write(bytes : Uint8Array, offset? : number) : void {
@@ -87,12 +90,12 @@ export default class Buff extends Uint8Array {
     return Buff.of(...Buff.getVarint(num), ...this)
   }
 
-  static from(data : Uint8Array) : Buff {
-    return new Buff(Uint8Array.from(data).buffer)
+  static from(data : Uint8Array | number[] ) : Buff {
+    return new Buff(Uint8Array.from(data))
   }
 
   static of(...args : number[]) : Buff {
-    return new Buff(Uint8Array.of(...args).buffer)
+    return new Buff(Uint8Array.of(...args))
   }
 
   static join(arr : Uint8Array[]) : Buff {

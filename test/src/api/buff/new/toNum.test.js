@@ -1,0 +1,11 @@
+export default function (t, f) {
+  const sourceLE = Uint8Array.of(0x00, 0x00, 0xff, 0x80)
+  const sourceBE = Uint8Array.from(sourceLE).reverse()
+  const targetLE = 65408
+  const targetBE = 2164195328
+  const testedLE = new f(sourceLE).toNum()
+  const testedBE = new f(sourceBE).toNum('be')
+  t.plan(2)
+  t.equal(testedLE, targetLE, 'should be equal using LE')
+  t.equal(testedBE, targetBE, 'should be equal using BE')
+}

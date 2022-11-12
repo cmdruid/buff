@@ -1,10 +1,10 @@
-import { Type }  from '../src/index.js'
+import { Type }  from '../../src/index.js'
 import camelcase from 'camelcase'
-import pkg from '../package.json' assert { type: 'json' }
+import pkg from '../../package.json' assert { type: 'json' }
 
-const SOURCE_PATH = './src'
+const SOURCE_PATH = './api'
 const DEFAULT_EXT = 'test.js'
-const DEFAULT_LIB = 'src/index.js'
+const DEFAULT_LIB = '../src/index.js'
 
 let testCache
 
