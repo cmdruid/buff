@@ -34,7 +34,7 @@ const is : TypeChecker = {
       typeof x?.prototype === 'object' 
       && x.toString().startsWith('class')
     ),
-    function  : x => typeof x === 'function',
+    function : x => typeof x === 'function',
     uint8  : x => x instanceof Uint8Array,
     uint16 : x => x instanceof Uint16Array,
     uint32 : x => x instanceof Uint32Array,

@@ -2,8 +2,11 @@ import Bech32 from './bech32.js'
 import BaseX  from './basex.js'
 
 export default class Buff extends Uint8Array {
-  constructor(data : ArrayBufferLike, size? : number) {
-    if (size !== undefined) {
+  constructor(
+    data : ArrayBufferLike, 
+    size : number | null = null
+  ) {
+    if (size !== null) {
       const tmp = new Uint8Array(size).fill(0)
       tmp.set(new Uint8Array(data))
       data = tmp.buffer
@@ -12,21 +15,49 @@ export default class Buff extends Uint8Array {
     return this
   }
 
+  static num = (
+    number : number,
+    size?  : number | null,
+    orient : 'le' | 'be' = 'le'
+  ) : Buff => {
+    return (orient === 'le')
+      ? new Buff(numToBytes(number).reverse(), size)
+      : new Buff(numToBytes(number), size)
+  }
+
+  static big = (
+    number : bigint, 
+    size?  : number | null,
+    orient : 'le' | 'be' = 'le'
+  ) : Buff => {
+    return (orient === 'le')
+      ? new Buff(bigToBytes(number).reverse(), size)
+      : new Buff(bigToBytes(number), size)
+  }
+
+  static buff = (x : ArrayBufferLike, s? : number) : Buff => new Buff(x, s)
   static str = (x : string, s? : number) : Buff => new Buff(strToBytes(x), s)
   static hex = (x : string, s? : number) : Buff => new Buff(hexToBytes(x), s)
-  static num = (x : number, s? : number) : Buff => new Buff(numToBytes(x), s)
-  static big = (x : bigint, s? : number) : Buff => new Buff(bigToBytes(x), s)
-  static buff = (x : ArrayBufferLike, s? : number) : Buff => new Buff(x, s)
   static json = (x : object) : Buff => new Buff(strToBytes(JSON.stringify(x)))
   static bech32 = (x : string, v : number) : Buff => new Buff(Bech32.decode(x, v))
   static base58 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base58'))
   static base64 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64'))
   static b64url = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64url'))
 
+  toNum(orient : 'le' | 'be' = 'le') : number { 
+    return (orient === 'be')
+      ? bytesToNum(this.reverse()) 
+      : bytesToNum(this) 
+  }
+
+  toBig(orient : 'le' | 'be' = 'le') : bigint { 
+    return (orient === 'be')
+      ? bytesToBig(this.reverse())
+      : bytesToBig(this)
+  }
+
   toArr() : number[] { return Array.from(this) }
   toStr() : string { return bytesToStr(this) }
-  toNum() : number { return bytesToNum(this) }
-  toBig() : bigint { return bytesToBig(this) }
   toHex() : string { return bytesToHex(this) }
   toJson() : object { return JSON.parse(bytesToStr(this)) }
   toBytes() : Uint8Array { return new Uint8Array(this) }
@@ -52,8 +83,8 @@ export default class Buff extends Uint8Array {
     this.set(bytes, offset)
   }
 
-  varint(num : number) : Buff {
-    return Buff.of(...this, ...Buff.varint(num))
+  addVarint(num = this.length) : Buff {
+    return Buff.of(...Buff.getVarint(num), ...this)
   }
 
   static from(data : Uint8Array) : Buff {
@@ -76,7 +107,7 @@ export default class Buff extends Uint8Array {
     return new Buff(totalBytes, totalSize)
   }
 
-  static varint(num : number) : Buff {
+  static getVarint(num : number) : Buff {
     if (num < 0xFD) {
       return Buff.num(num, 1)
     } else if (num < 0x10000) {
@@ -108,24 +139,24 @@ function hexToBytes(str : string) : ArrayBufferLike {
   return Uint8Array.from(bytes).buffer
 }
 
-function numToBytes(num : number) : ArrayBufferLike {
+function numToBytes(num : number) : Uint8Array {
   const bytes = []
   while (num > 0) {
     const byte = num & 0xff
     bytes.push(byte)
     num = (num - byte) / 256
   }
-  return Uint8Array.from(bytes).buffer
+  return Uint8Array.from(bytes)
 }
 
-function bigToBytes(big : bigint) : ArrayBufferLike {
+function bigToBytes(big : bigint) : Uint8Array {
   const bytes = []
   while (big > 0n) {
     const byte = big & 0xffn
     bytes.push(Number(byte))
     big = (big - byte) / 256n
   }
-  return Uint8Array.from(bytes).buffer
+  return Uint8Array.from(bytes)
 }
 
 function bytesToStr(bytes : Uint8Array) : string {

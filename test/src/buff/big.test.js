@@ -1,7 +1,10 @@
 export default function (t, f) {
-  const source = 115792089237316195423570985008687907853269984665640564039457584007913129639935n
-  const target = new Uint8Array(32).fill(0xFF)
-  const tested = Uint8Array.from(f(source))
-  t.plan(1)
-  t.deepEqual(target, tested)
+  const source = BigInt('0xFF0000000000000000000000')
+  const targetLE = new Uint8Array(12).fill(0xFF, 0, 1)
+  const targetBE = new Uint8Array(12).fill(0xFF, 11)
+  const testedLE = Uint8Array.from(f(source))
+  const testedBE = Uint8Array.from(f(source, null, 'be'))
+  t.plan(2)
+  t.deepEqual(testedLE, targetLE, 'should be little endian')
+  t.deepEqual(testedBE, targetBE, 'should be big endian')
 }
