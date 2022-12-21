@@ -1,7 +1,35 @@
 import Bech32 from './bech32.js'
 import BaseX  from './basex.js'
+import * as C from './convert.js'
+import { Bytes, Data } from './types.js'
 
 export default class Buff extends Uint8Array {
+
+  static num = (
+    number : number,
+    size?  : number | null,
+    orient : 'le' | 'be' = 'le'
+  ) : Buff => {
+    return new Buff(C.numToBytes(number), size, orient)
+  }
+
+  static big = (
+    number : bigint, 
+    size?  : number | null,
+    orient : 'le' | 'be' = 'le'
+  ) : Buff => {
+    return new Buff(C.bigToBytes(number), size, orient)
+  }
+
+  static buff   = (x : ArrayBufferLike, s? : number) : Buff => new Buff(x, s)
+  static str    = (x : string, s? : number) : Buff => new Buff(C.strToBytes(x), s)
+  static hex    = (x : string, s? : number) : Buff => new Buff(C.hexToBytes(x), s)
+  static json   = (x : object) : Buff => new Buff(C.strToBytes(JSON.stringify(x)))
+  static bech32 = (x : string, v : number) : Buff => new Buff(Bech32.decode(x, v))
+  static base58 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base58'))
+  static base64 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64'))
+  static b64url = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64url'))
+
   constructor(
     data : ArrayBufferLike, 
     size : number | null = null,
@@ -19,52 +47,27 @@ export default class Buff extends Uint8Array {
     return this
   }
 
-  static num = (
-    number : number,
-    size?  : number | null,
-    orient : 'le' | 'be' = 'le'
-  ) : Buff => {
-    return new Buff(numToBytes(number), size, orient)
-  }
-
-  static big = (
-    number : bigint, 
-    size?  : number | null,
-    orient : 'le' | 'be' = 'le'
-  ) : Buff => {
-    return new Buff(bigToBytes(number), size, orient)
-  }
-
-  static buff = (x : ArrayBufferLike, s? : number) : Buff => new Buff(x, s)
-  static str = (x : string, s? : number) : Buff => new Buff(strToBytes(x), s)
-  static hex = (x : string, s? : number) : Buff => new Buff(hexToBytes(x), s)
-  static json = (x : object) : Buff => new Buff(strToBytes(JSON.stringify(x)))
-  static bech32 = (x : string, v : number) : Buff => new Buff(Bech32.decode(x, v))
-  static base58 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base58'))
-  static base64 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64'))
-  static b64url = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64url'))
-
   toNum(orient : 'le' | 'be' = 'le') : number { 
     return (orient === 'le')
-      ? bytesToNum(this.reverse()) 
-      : bytesToNum(this) 
+      ? C.bytesToNum(this.reverse()) 
+      : C.bytesToNum(this) 
   }
 
   toBig(orient : 'le' | 'be' = 'le') : bigint { 
     return (orient === 'le')
-      ? bytesToBig(this.reverse())
-      : bytesToBig(this)
+      ? C.bytesToBig(this.reverse())
+      : C.bytesToBig(this)
   }
 
-  toArr() : number[] { return Array.from(this) }
-  toStr() : string { return bytesToStr(this) }
-  toHex() : string { return bytesToHex(this) }
-  toJson() : object { return JSON.parse(bytesToStr(this)) }
-  toBytes() : Uint8Array { return new Uint8Array(this) }
-  toBech32(hrp : string, v : number) : string { return Bech32.encode(this, hrp ,v) }
+  toArr()    : number[] { return Array.from(this) }
+  toStr()    : string { return C.bytesToStr(this) }
+  toHex()    : string { return C.bytesToHex(this) }
+  toJson()   : object { return JSON.parse(C.bytesToStr(this)) }
+  toBytes()  : Uint8Array { return new Uint8Array(this) }
   toBase58() : string { return BaseX.encode(this, 'base58') }
-  toBase64(padding? : boolean) : string { return BaseX.encode(this, 'base64', padding) }
   toB64url() : string { return BaseX.encode(this, 'base64url') }
+  toBech32(hrp : string, v : number) : string { return Bech32.encode(this, hrp ,v) }
+  toBase64(padding? : boolean) : string { return BaseX.encode(this, 'base64', padding) }
 
   prepend(data : Uint8Array) : Buff {
     return Buff.of(...data, ...this)
@@ -123,70 +126,29 @@ export default class Buff extends Uint8Array {
       throw new Error(`Value is too large: ${num}`)
     }
   }
-}
 
-function strToBytes(str : string) : ArrayBufferLike {
-  const ec = new TextEncoder()
-  return ec.encode(str).buffer
-}
-
-function hexToBytes(str : string) : ArrayBufferLike {
-  const bytes = []; let i, idx = 0
-  if (str.length % 2 > 0) {
-    throw new Error(`Invalid hex string length: ${str.length}`)
+  static random(size: number = 32): Buff {
+    return new Buff(crypto.getRandomValues(new Uint8Array(size)))
   }
-  for (i = 0; i < str.length; i += 2) {
-    bytes[idx] = parseInt(str.slice(i, i + 2), 16)
-    idx += 1
-  }
-  return Uint8Array.from(bytes).buffer
-}
 
-function numToBytes(num : number) : Uint8Array {
-  const bytes = []
-  while (num > 0) {
-    const byte = num & 0xff
-    bytes.push(byte)
-    num = (num - byte) / 256
+  static normalizeBytes(
+    data  : Bytes,
+    size? : number
+  ) : Uint8Array {
+    if (typeof data === 'string')   return Buff.hex(data, size)
+    if (typeof data === 'number')   return Buff.num(data, size)
+    if (typeof data === 'bigint')   return Buff.big(data, size)
+    if (data instanceof Uint8Array) return Buff.buff(data, size)
+    throw TypeError(`Unrecognized format: ${typeof data}`)
   }
-  return Uint8Array.from(bytes)
-}
 
-function bigToBytes(big : bigint) : Uint8Array {
-  const bytes = []
-  while (big > 0n) {
-    const byte = big & 0xffn
-    bytes.push(Number(byte))
-    big = (big - byte) / 256n
+  static normalizeData(data : Data) : Uint8Array {
+    if (typeof data === 'string') return Buff.str(data)
+    if (typeof data === 'object') {
+      if (data instanceof Uint8Array) return data
+      try { return Buff.json(data) }
+      catch { throw TypeError(`Object is not serializable.`) }
+    }
+    throw TypeError(`Unrecognized format: ${typeof data}`)
   }
-  return Uint8Array.from(bytes)
-}
-
-function bytesToStr(bytes : Uint8Array) : string {
-  const dc = new TextDecoder()
-  return dc.decode(bytes)
-}
-
-function bytesToHex(bytes : Uint8Array) : string {
-  const hex = []; let i
-  for (i = 0; i < bytes.length; i++) {
-    hex.push(bytes[i].toString(16).padStart(2, '0'))
-  }
-  return hex.join('')
-}
-
-function bytesToNum(bytes : Uint8Array) : number {
-  let num = 0, i
-  for (i = bytes.length - 1; i >= 0; i--) {
-    num = (num * 256) + bytes[i]
-  }
-  return Number(num)
-}
-
-function bytesToBig(bytes : Uint8Array) : bigint {
-  let num = 0n, i
-  for (i = bytes.length - 1; i >= 0; i--) {
-    num = (num * 256n) + BigInt(bytes[i])
-  }
-  return BigInt(num)
 }

@@ -49,7 +49,7 @@ const array : ArrayChecker = {
   isBigint: x => x.every((e : any) => is.bigint(e))
 }
 
-const of = (x : any) : string => {
+const type = (x : any) : string => {
   for (const [k,v] of Object.entries(is)) {
     if (v(x) === true) {
       return k
@@ -71,10 +71,8 @@ function isHex(str : string) : boolean {
   }
 }
 
-const Type = {
-  of,
+export default {
+  type,
   array, 
   is
 }
-
-export default Type

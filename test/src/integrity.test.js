@@ -8,7 +8,7 @@ export default function integrityTest(t) {
 
   const tnum = getRandom(),
         tbig = BigInt(tnum),
-        thex = tnum.toString(16)
+        thex = tnum.toString(16).padStart(8, '0')
 
   const num2num = Buff.num(tnum).toNum()
   const num2big = Buff.num(tnum).toBig()
