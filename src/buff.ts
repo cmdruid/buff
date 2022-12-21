@@ -135,18 +135,18 @@ export default class Buff extends Uint8Array {
     data  : Bytes,
     size? : number
   ) : Uint8Array {
-    if (typeof data === 'string')   return Buff.hex(data, size)
-    if (typeof data === 'number')   return Buff.num(data, size)
-    if (typeof data === 'bigint')   return Buff.big(data, size)
-    if (data instanceof Uint8Array) return Buff.buff(data, size)
+    if (typeof data === 'string')   return Buff.hex(data, size).toBytes()
+    if (typeof data === 'number')   return Buff.num(data, size).toBytes()
+    if (typeof data === 'bigint')   return Buff.big(data, size).toBytes()
+    if (data instanceof Uint8Array) return Buff.buff(data, size).toBytes()
     throw TypeError(`Unrecognized format: ${typeof data}`)
   }
 
   static normalizeData(data : Data) : Uint8Array {
-    if (typeof data === 'string') return Buff.str(data)
+    if (typeof data === 'string') return Buff.str(data).toBytes()
     if (typeof data === 'object') {
       if (data instanceof Uint8Array) return data
-      try { return Buff.json(data) }
+      try { return Buff.json(data).toBytes() }
       catch { throw TypeError(`Object is not serializable.`) }
     }
     throw TypeError(`Unrecognized format: ${typeof data}`)
