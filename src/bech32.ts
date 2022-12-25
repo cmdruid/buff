@@ -230,9 +230,7 @@ function decode(
   }
 }
 
-const Bech32 = {
+export const Bech32 = {
   encode,
   decode
 }
-
-export default Bech32

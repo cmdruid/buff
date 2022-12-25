@@ -1,9 +1,9 @@
-import Bech32 from './bech32.js'
-import BaseX  from './basex.js'
+import { Bech32 } from './bech32.js'
+import { BaseX  } from './basex.js'
 import * as C from './convert.js'
 import { Bytes, Data } from './types.js'
 
-export default class Buff extends Uint8Array {
+export class Buff extends Uint8Array {
 
   static num = (
     number : number,

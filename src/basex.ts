@@ -109,9 +109,7 @@ function decode(
   return Uint8Array.from(b)
 }
 
-const BaseX = {
+export const BaseX = {
   encode,
   decode
 }
-
-export default BaseX

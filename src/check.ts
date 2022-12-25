@@ -71,7 +71,7 @@ function isHex(str : string) : boolean {
   }
 }
 
-export default {
+export const Check = {
   type,
   array, 
   is

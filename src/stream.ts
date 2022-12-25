@@ -1,6 +1,6 @@
-import Buff from './buff.js'
+import { Buff } from './buff.js'
 
-export default class Stream {
+export class Stream {
 
   public size : number
   public data : Uint8Array
