@@ -1,7 +1,27 @@
 import { Bech32 } from './bech32.js'
 import { BaseX  } from './basex.js'
 import * as C from './convert.js'
-import { Bytes, Data } from './types.js'
+import { Bytes, Data, Json } from './types.js'
+
+export const Hex = {
+  encode: C.bytesToHex,
+  decode: C.hexToBytes,
+  normalize: (x : Bytes) => Buff.normalize(x)
+}
+
+export const Dat = {
+  encode: C.bytesToStr,
+  decode: C.strToBytes,
+  serialzie: (x : Data) => Buff.serialize(x),
+  revitalize: (x : Data) => Buff.revitalize(x)
+}
+
+export const Base64 = {
+  encode: (x : Uint8Array)    => BaseX.encode(x, 'base64'),
+  decode: (x : string)        => BaseX.decode(x, 'base64'),
+  encodeUrl: (x : Uint8Array) => BaseX.encode(x, 'base64'),
+  decodeUrl: (x : string)     => BaseX.decode(x, 'base64')
+}
 
 export class Buff extends Uint8Array {
 
@@ -24,11 +44,11 @@ export class Buff extends Uint8Array {
   static buff   = (x : ArrayBufferLike, s? : number) : Buff => new Buff(x, s)
   static str    = (x : string, s? : number) : Buff => new Buff(C.strToBytes(x), s)
   static hex    = (x : string, s? : number) : Buff => new Buff(C.hexToBytes(x), s)
-  static json   = (x : object) : Buff => new Buff(C.strToBytes(JSON.stringify(x)))
-  static bech32 = (x : string, v : number) : Buff => new Buff(Bech32.decode(x, v))
-  static base58 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base58'))
-  static base64 = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64'))
-  static b64url = (x : string) : Buff => new Buff(BaseX.decode(x, 'base64url'))
+  static json   = (x : Json)      : Buff => new Buff(C.strToBytes(JSON.stringify(x)))
+  static bech32 = (x : string, v  : number) : Buff => new Buff(Bech32.decode(x, v))
+  static base58 = (x : string)    : Buff => new Buff(BaseX.decode(x, 'base58'))
+  static base64 = (x : string)    : Buff => new Buff(BaseX.decode(x, 'base64'))
+  static b64url = (x : string)    : Buff => new Buff(BaseX.decode(x, 'base64url'))
 
   constructor(
     data : ArrayBufferLike, 
@@ -62,7 +82,7 @@ export class Buff extends Uint8Array {
   toArr()    : number[] { return Array.from(this) }
   toStr()    : string { return C.bytesToStr(this) }
   toHex()    : string { return C.bytesToHex(this) }
-  toJson()   : object { return JSON.parse(C.bytesToStr(this)) }
+  toJson()   : Json   { return JSON.parse(C.bytesToStr(this)) }
   toBytes()  : Uint8Array { return new Uint8Array(this) }
   toBase58() : string { return BaseX.encode(this, 'base58') }
   toB64url() : string { return BaseX.encode(this, 'base64url') }
@@ -131,7 +151,10 @@ export class Buff extends Uint8Array {
     return new Buff(crypto.getRandomValues(new Uint8Array(size)))
   }
 
-  static normalizeBytes(
+  static encode = C.strToBytes
+  static decode = C.bytesToStr
+
+  static normalize(
     data  : Bytes,
     size? : number
   ) : Uint8Array {
@@ -142,13 +165,30 @@ export class Buff extends Uint8Array {
     throw TypeError(`Unrecognized format: ${typeof data}`)
   }
 
-  static normalizeData(data : Data) : Uint8Array {
-    if (typeof data === 'string') return Buff.str(data).toBytes()
+  static serialize(data : Data) : Uint8Array {
+    if (typeof data === 'string') {
+      return Buff.str(data).toBytes()
+    }
     if (typeof data === 'object') {
-      if (data instanceof Uint8Array) return data
-      try { return Buff.json(data).toBytes() }
+      if (data instanceof Uint8Array) {
+        return data
+      }
+      try { 
+        return Buff.json(data).toBytes() 
+      }
       catch { throw TypeError(`Object is not serializable.`) }
     }
     throw TypeError(`Unrecognized format: ${typeof data}`)
+  }
+
+  static revitalize(data : Data) : Json {
+    if (data instanceof Uint8Array) {
+      data = C.bytesToStr(data)
+    }
+    if (typeof data === 'string') {
+      try { return JSON.parse(data) }
+      catch { return data }
+    }
+    return data
   }
 }
