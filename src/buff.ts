@@ -160,10 +160,10 @@ export class Buff extends Uint8Array {
     data  : Bytes,
     size? : number
   ) : Uint8Array {
-    if (typeof data === 'string')   return Buff.hex(data, size).toBytes()
-    if (typeof data === 'number')   return Buff.num(data, size).toBytes()
-    if (typeof data === 'bigint')   return Buff.big(data, size).toBytes()
-    if (data instanceof Uint8Array) return Buff.buff(data, size).toBytes()
+    if (data instanceof Uint8Array)  return data
+    if (typeof data === 'string') return Buff.hex(data, size).toBytes()
+    if (typeof data === 'number') return Buff.num(data, size).toBytes()
+    if (typeof data === 'bigint') return Buff.big(data, size).toBytes() 
     throw TypeError(`Unrecognized format: ${typeof data}`)
   }
 

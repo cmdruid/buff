@@ -1,5 +1,7 @@
+const ec = new TextEncoder()
+const dc = new TextDecoder()
+
 export function strToBytes(str : string) : ArrayBufferLike {
-  const ec = new TextEncoder()
   return ec.encode(str).buffer
 }
 
@@ -36,7 +38,6 @@ export function bigToBytes(big : bigint) : Uint8Array {
 }
 
 export function bytesToStr(bytes : Uint8Array) : string {
-  const dc = new TextDecoder()
   return dc.decode(bytes)
 }
 
