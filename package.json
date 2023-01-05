@@ -1,7 +1,7 @@
 {
   "name": "@cmdcode/buff-utils",
   "type": "module",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Cross-platform utility library for working with byte-arrays and moving between formats.",
   "author": "Christopher Scott",
   "license": "CC-BY-1.0",
