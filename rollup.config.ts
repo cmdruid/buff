@@ -61,7 +61,7 @@ const browserConfig = {
   output: [
     {
       file: 'dist/bundle.min.js',
-      format: 'iife',
+      format: 'umd',
       name: libName,
       plugins: [terser()],
       sourcemap: true,
@@ -86,6 +86,7 @@ const testConfig = {
       plugins: [terser()],
       sourcemap: false,
       globals: {
+        crypto: 'crypto',
         tape: 'tape'
       }
     }

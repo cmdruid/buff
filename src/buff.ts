@@ -1,19 +1,21 @@
+import { webcrypto as crypto } from 'crypto'
+import * as C     from './convert.js'
 import { Bech32 } from './bech32.js'
 import { BaseX  } from './basex.js'
-import * as C from './convert.js'
+
 import { Bytes, Data, Json } from './types.js'
 
 export const Hex = {
-  encode: C.bytesToHex,
-  decode: C.hexToBytes,
-  normalize: (x : Bytes) => Buff.normalize(x)
+  encode: (x: Uint8Array) => Buff.buff(x).toHex(),
+  decode: (x: string)     => Buff.hex(x).toBytes(),
+  normalize: (x : Bytes)  => Buff.normalize(x)
 }
 
-export const Dat = {
-  encode: C.bytesToStr,
-  decode: C.strToBytes,
-  serialzie: (x : Data) => Buff.serialize(x),
-  revitalize: (x : Data) => Buff.revitalize(x)
+export const Txt = {
+  encode: (x: Uint8Array) => Buff.buff(x).toStr(),
+  decode: (x: string)     => Buff.str(x).toBytes(),
+  serialzie: (x : Data)   => Buff.serialize(x),
+  revitalize: (x : Data)  => Buff.revitalize(x)
 }
 
 export const Base64 = {
@@ -109,8 +111,8 @@ export class Buff extends Uint8Array {
     this.set(bytes, offset)
   }
 
-  addVarint(num = this.length) : Buff {
-    return Buff.of(...Buff.getVarint(num), ...this)
+  prependVarint(num = this.length) : Buff {
+    return Buff.of(...Buff.readVarint(num), ...this)
   }
 
   static from(data : Uint8Array | number[] ) : Buff {
@@ -133,7 +135,7 @@ export class Buff extends Uint8Array {
     return new Buff(totalBytes, totalSize)
   }
 
-  static getVarint(num : number) : Buff {
+  static readVarint(num : number) : Buff {
     if (num < 0xFD) {
       return Buff.num(num, 1)
     } else if (num < 0x10000) {
