@@ -61,7 +61,7 @@ const browserConfig = {
   output: [
     {
       file: 'dist/bundle.min.js',
-      format: 'umd',
+      format: 'iife',
       name: libName,
       plugins: [terser()],
       sourcemap: true,
@@ -70,7 +70,7 @@ const browserConfig = {
       }
     },
   ],
-  plugins: [json(), typescript(tsConfig), nodeResolve({ browser: true }), commonjs()],
+  plugins: [json(), typescript(tsConfig), nodeResolve(), commonjs()],
   strictDeprecations: true,
   treeshake
 }
