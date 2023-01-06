@@ -1,20 +1,21 @@
-# Bytes Utils
-Cross-platform utility library for working with byte-arrays and moving between formats.
+# Buff Utils
+Cross-platform utility library for working with array buffers and moving between formats.
 
 ## Installation
 ```html
-<script src="https://unpkg.com/@cmdcode/bytes-utils">
+<script src="https://unpkg.com/@cmdcode/buff-utils">
 ```
 ```bash
-yarn add @cmdcode/bytes-utils | npm install @cmdcode/bytes-utils
+yarn add @cmdcode/buff-utils | npm install @cmdcode/buff-utils
 ```
 
 ## How to Use
 ```ts
-/* Buff class extends Uint8Array object
+/**
+ * Buff class extends Uint8Array object
  * and provides simple format conversion. 
- */
-import { Buff } from '@cmdcode/bytes-utils'
+ * */
+import { Buff } from '@cmdcode/buff-utils'
 
 Buff
   .str(strData)    => Buff<Uint8Array>
@@ -26,8 +27,10 @@ Buff
   .bech32(strData) => Buff<Uint8Array>
   .base58(strData) => Buff<Uint8Array>
   .base64(strData) => Buff<Uint8Array>
+  .b64url(strData) => Buff<Uint8Array>
 
 new Buff(data: ArrayBufferLike, size: number)
+  .toArr()    => number[]
   .toStr()    => string
   .toHex()    => hexstring
   .toNum()    => number
@@ -37,29 +40,54 @@ new Buff(data: ArrayBufferLike, size: number)
   .toBech32() => b32string
   .toBase58() => b58string
   .toBase64() => b64string
+  .toB64url() => b64string
+
+/* There's also a number of helpful utiltiy methods. */
+
+Buff.
+  // Same as TextEncoder.
+  encode(string)     => Uint8Array
+  // Same as TextEncoder.  
+  decode(Uint8Array) => string
+  // Normalizes typed arrays and hex strings.
+  normalize(hexstring | Uint8Array)
+  // Serializes json objects and strings.
+  serialize(string  | Uint8Array | Json) => Uint8Array
+  // Safely revives json objects or strings.
+  revitalize(string | Uint8Array) => Json | string
+
+// Some of this utility has been separated into smaller 
+// libraries for convenience and code readability
+import { Base64, Hex, Txt } from '@cmdcode/buff-utils'
 ```
 
 ```ts
-/* Bytes class extends the Buff object
- * even further, adds byte manipualtion. 
- */
-import { Bytes } from '@cmdcode/bytes-utils'
+/** 
+ * In addition to the standard Uint8Array API,
+ * you can also perform other convenient tasks.
+ * */
 
-Bytes
-  .varint(num: number)     => bytes // Returns a byte array of the varint.
-  .join(arr: Uint8Array[]) => bytes // Returns a concatenated byte array.    
+Buff
+  .readVarint(num : number)   => Uint8Array // Reads the first byte as a varint.
+  .join(arr: Uint8Array[])    => Uint8Array // Returns a concatenated byte array.
+  .random (size : number)     => Uint8Array // Returns an array with random bytes.
 
-new Bytes(data: ArrayBufferLike, size: number)
-  .prepend(bytes: Uint8Array) => bytes // Returns prepended byte array.
-  .append(bytes: Uint8Array)  => bytes // Returns appended byte array.
-  .varint(num: number)        => bytes // Returns appended byte array.
+new Bytes(data: Uint8Array)
+  .prepend(data: Uint8Array)  => Uint8Array // Returns prepended byte array.
+  .append(data: Uint8Array)   => Uint8Array // Returns appended byte array.
+  .prependVarint(num: number) => Uint8Array // Returns appended byte array.
+  .write(
+    bytes : Uint8Array, 
+    offset ?: number
+  ) => void // Wraps Uint8Array.set().
 ```
 
 ```ts
-/* Stream class reads from a Uint8Array,
+/**
+ * Stream class reads from a Uint8Array,
  * and consumes the data on each read.
- */
-import { Stream } from '@cmdcode/bytes-utils'
+ * */
+import { Stream } from '@cmdcode/buff-utils'
 
 new Stream(data: ArrayBufferLike)
   .peek(len: number) => bytes // Reads the array, does not consume.
@@ -68,10 +96,12 @@ new Stream(data: ArrayBufferLike)
 ```
 
 ```ts
-/* Type class is an extention of 'typeof',
- * tries to determine a 'type' to any data.
+/**
+ * Type class is an extention of 'typeof'.
+ * It will attempt to return a proper string
+ * for the variable type.
  */
-import { Type } from '@cmdcode/bytes-utils'
+import { Type } from '@cmdcode/buff-utils'
 
 Type.of(data: any) => string [
   'undefined'
@@ -104,7 +134,6 @@ There's also a test/index.html that will launch testing for the browser bundle, 
 This project uses the following development tools:
 
   - ESLint     : For linting and catching linter errors.
-  - Prettier   : For enforcing standard code formatting.
   - Nyc        : For test code coverage and reports.
   - Rollup     : Bundling/optimizing code for different platforms.
   - Tape       : A simple, easy to use testing library. 
