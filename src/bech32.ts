@@ -28,11 +28,11 @@ const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
 const GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3]
 
 const encodings = {
-  BECH32: 'bech32',
-  BECH32M: 'bech32m'
+  BECH32  : 'bech32',
+  BECH32M : 'bech32m'
 }
 
-function getEncodingConst(enc : string) : number {
+function getEncodingConst (enc : string) : number {
   switch (enc) {
     case encodings.BECH32:
       return 1
@@ -43,7 +43,7 @@ function getEncodingConst(enc : string) : number {
   }
 }
 
-function polymod(values : number[]) : number {
+function polymod (values : number[]) : number {
   let chk = 1
   for (let p = 0; p < values.length; ++p) {
     const top = chk >> 25
@@ -57,7 +57,7 @@ function polymod(values : number[]) : number {
   return chk
 }
 
-function hrpExpand(hrp : string) : number[] {
+function hrpExpand (hrp : string) : number[] {
   /** Expand the HRP into values for checksum computation. */
   const ret = []
   let p
@@ -71,7 +71,7 @@ function hrpExpand(hrp : string) : number[] {
   return ret
 }
 
-function convertBits(
+function convertBits (
   data     : number[],
   fromBits : number,
   toBits   : number,
@@ -107,12 +107,12 @@ function convertBits(
   return ret
 }
 
-function verifyChecksum(hrp : string, data : number[], enc : string) : boolean {
+function verifyChecksum (hrp : string, data : number[], enc : string) : boolean {
   const combined = hrpExpand(hrp).concat(data)
   return polymod(combined) === getEncodingConst(enc)
 }
 
-function createChecksum(hrp : string, data : number[], enc : string) : number[] {
+function createChecksum (hrp : string, data : number[], enc : string) : number[] {
   const values = hrpExpand(hrp).concat(data).concat([0, 0, 0, 0, 0, 0])
   const mod = polymod(values) ^ getEncodingConst(enc)
   const ret = []
@@ -122,7 +122,7 @@ function createChecksum(hrp : string, data : number[], enc : string) : number[] 
   return ret
 }
 
-function b32encode(hrp : string, data : number[], enc : string) : string {
+function b32encode (hrp : string, data : number[], enc : string) : string {
   const combined = data.concat(createChecksum(hrp, data, enc))
   let ret = hrp + '1'
   for (let p = 0; p < combined.length; ++p) {
@@ -131,11 +131,11 @@ function b32encode(hrp : string, data : number[], enc : string) : string {
   return ret
 }
 
-function b32decode(bechstr : string, version : number) : DecodecData {
+function b32decode (bechstr : string, version : number) : DecodecData {
   const enc : string = (version > 0) ? 'bech32m' : 'bech32'
 
   if (!checkBounds(bechstr)) {
-    return { hrp: null, data: [0xFF]}
+    return { hrp: null, data: [0xFF] }
   }
 
   bechstr = bechstr.toLowerCase()
@@ -162,7 +162,7 @@ function b32decode(bechstr : string, version : number) : DecodecData {
     : { hrp: null, data: [0xFF] }
 }
 
-function checkBounds(bechstr : string) : boolean {
+function checkBounds (bechstr : string) : boolean {
   let p; let char; let hasLower = false; let hasUpper = false
 
   for (p = 0; p < bechstr.length; ++p) {
@@ -181,7 +181,7 @@ function checkBounds(bechstr : string) : boolean {
   return !(hasLower && hasUpper)
 }
 
-function checkSeparatorPos(bechstr : string) : boolean {
+function checkSeparatorPos (bechstr : string) : boolean {
   const pos = bechstr.lastIndexOf('1')
   return !(
     pos < 1 ||
@@ -190,7 +190,7 @@ function checkSeparatorPos(bechstr : string) : boolean {
   )
 }
 
-function encode(
+function encode (
   data    : Uint8Array,
   hrp     : string = 'bch',
   version : number = 0
@@ -203,7 +203,7 @@ function encode(
   return str
 }
 
-function decode(
+function decode (
   str : string,
   version : number = 0
 ) : Uint8Array {

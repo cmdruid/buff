@@ -16,10 +16,10 @@ const ALPHABETS : Alphabet[] = [
   {
     name    : 'base64url',
     charset : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
-  },
+  }
 ]
 
-function getAlphabet(name : string) : string {
+function getAlphabet (name : string) : string {
   for (const alpha of ALPHABETS) {
     if (alpha.name === name) {
       return alpha.charset
@@ -28,8 +28,8 @@ function getAlphabet(name : string) : string {
   throw TypeError('Charset does not exist: ' + name)
 }
 
-function encode(
-  data    : Uint8Array, 
+function encode (
+  data    : Uint8Array,
   charset : string,
   padding : boolean = false
 ) : string {
@@ -40,7 +40,7 @@ function encode(
 
   let s : string = '',
       i : number,
-      j : number = 0, 
+      j : number = 0,
       c : number,
       n : number
 
@@ -50,7 +50,7 @@ function encode(
     s += (c > 0 || (s.length ^ i) > 0) ? '' : '1'
     while (j in d || c > 0) {
       n = d[j]
-      n = n > 0? n * 256 + c : c
+      n = n > 0 ? n * 256 + c : c
       c = n / len | 0
       d[j] = n % len
       j++
@@ -66,7 +66,7 @@ function encode(
     : s
 }
 
-function decode(
+function decode (
   encoded : string,
   charset : string
 ) : Uint8Array {
@@ -78,9 +78,9 @@ function decode(
 
   encoded = encoded.replace('=', '')
 
-  let i : number, 
-      j : number = 0, 
-      c : number, 
+  let i : number,
+      j : number = 0,
+      c : number,
       n : number
 
   for (i = 0; i < encoded.length; i++) {

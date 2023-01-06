@@ -31,26 +31,26 @@ const is : TypeChecker = {
     bigint    : x => typeof x === 'bigint',
     number    : x => typeof x === 'number',
     class     : x => (
-      typeof x?.prototype === 'object' 
-      && x.toString().startsWith('class')
+      typeof x?.prototype === 'object' &&
+      x.toString().startsWith('class')
     ),
     function : x => typeof x === 'function',
-    uint8  : x => x instanceof Uint8Array,
-    uint16 : x => x instanceof Uint16Array,
-    uint32 : x => x instanceof Uint32Array,
-    buffer : x => x instanceof ArrayBuffer,
-    array  : x => Array.isArray(x),
-    object : x => typeof x === 'object'
+    uint8    : x => x instanceof Uint8Array,
+    uint16   : x => x instanceof Uint16Array,
+    uint32   : x => x instanceof Uint32Array,
+    buffer   : x => x instanceof ArrayBuffer,
+    array    : x => Array.isArray(x),
+    object   : x => typeof x === 'object'
   }
 
 const array : ArrayChecker = {
-  isString: x => x.every((e : any) => is.string(e)),
-  isNumber: x => x.every((e : any) => is.number(e)),
-  isBigint: x => x.every((e : any) => is.bigint(e))
+  isString : x => x.every((e : any) => is.string(e)),
+  isNumber : x => x.every((e : any) => is.number(e)),
+  isBigint : x => x.every((e : any) => is.bigint(e))
 }
 
 const type = (x : any) : string => {
-  for (const [k,v] of Object.entries(is)) {
+  for (const [k, v] of Object.entries(is)) {
     if (v(x) === true) {
       return k
     }
@@ -58,7 +58,7 @@ const type = (x : any) : string => {
   return 'unknown'
 }
 
-function isHex(str : string) : boolean {
+function isHex (str : string) : boolean {
   switch (true) {
     case (typeof str !== 'string'):
       return false
@@ -73,6 +73,6 @@ function isHex(str : string) : boolean {
 
 export const Check = {
   type,
-  array, 
+  array,
   is
 }

@@ -1,23 +1,22 @@
 import { Buff } from './buff.js'
 
 export class Stream {
-
   public size : number
   public data : Uint8Array
 
-  constructor(data : ArrayBufferLike) {
+  constructor (data : ArrayBufferLike) {
     this.data = new Uint8Array(data)
     this.size = this.data.length
   }
 
-  peek(size : number) : Buff {
+  peek (size : number) : Buff {
     if (size > this.size) {
       throw new Error(`Size greater than stream: ${size} > ${this.size}`)
     }
     return new Buff(this.data.slice(0, size).buffer)
   }
 
-  read(size : number) : Buff {
+  read (size : number) : Buff {
     size = size ?? this.readVarint()
     const chunk = this.peek(size)
     this.data = this.data.slice(size)
@@ -25,7 +24,7 @@ export class Stream {
     return chunk
   }
 
-  readVarint() : number {
+  readVarint () : number {
     const num = this.read(1).toNum()
     switch (true) {
       case (num >= 0 && num < 0xFD):

@@ -1,14 +1,8 @@
 // rollup.config.ts
-import json from '@rollup/plugin-json'
-import typescript from '@rollup/plugin-typescript'
-import { terser } from 'rollup-plugin-terser'
+import typescript  from '@rollup/plugin-typescript'
 import nodeResolve from '@rollup/plugin-node-resolve'
-import commonjs from '@rollup/plugin-commonjs'
-import camelcase from 'camelcase'
-
-import pkg from './package.json' assert { type: 'json' }
-
-const libName = camelcase(String('/' + pkg.name)).split('/').at(-1)
+import commonjs    from '@rollup/plugin-commonjs'
+import { terser }  from 'rollup-plugin-terser'
 
 const treeshake = {
 	moduleSideEffects: false,
@@ -50,7 +44,7 @@ const nodeConfig = {
       minifyInternalExports: false
     },
   ],
-  plugins: [json(), typescript(tsConfig), nodeResolve(), commonjs()],
+  plugins: [ typescript(tsConfig), nodeResolve(), commonjs() ],
   strictDeprecations: true,
   treeshake
 }
@@ -62,44 +56,38 @@ const browserConfig = {
     {
       file: 'dist/bundle.min.js',
       format: 'iife',
-      name: libName,
+      name: 'buffUtils',
       plugins: [terser()],
       sourcemap: true,
-      globals: {
-        crypto: 'crypto',
-      }
     },
   ],
-  plugins: [json(), typescript(tsConfig), nodeResolve(), commonjs()],
+  plugins: [ typescript(tsConfig), nodeResolve(), commonjs() ],
   strictDeprecations: true,
   treeshake
 }
 
-const testConfig = {
-  input: 'test/index.test.js',
-  onwarn,
-  output: [
-    {
-      file: 'test/browser.test.js',
-      format: 'iife',
-      name: 'test',
-      plugins: [terser()],
-      sourcemap: false,
-      globals: {
-        crypto: 'crypto',
-        tape: 'tape'
-      }
-    }
-  ],
-  external: ['crypto', 'tape'],
-  plugins: [
-    json(), 
-    typescript({ ...tsConfig, sourceMap: false }), 
-    nodeResolve({ browser: true }), 
-    commonjs()
-  ],
-  strictDeprecations: true,
-  treeshake
-}
+// const testConfig = {
+//   input: 'test/index.test.js',
+//   onwarn,
+//   output: [
+//     {
+//       file: 'test/browser.test.js',
+//       format: 'iife',
+//       name: 'test',
+//       sourcemap: false,
+//       globals: {
+//         tape: 'tape'
+//       }
+//     }
+//   ],
+//   external: ['tape'],
+//   plugins: [
+//     typescript({ ...tsConfig, sourceMap: false }), 
+//     nodeResolve(), 
+//     commonjs()
+//   ],
+//   strictDeprecations: true,
+//   treeshake
+// }
 
-export default [ nodeConfig, browserConfig, testConfig ];
+export default [ nodeConfig, browserConfig ];
