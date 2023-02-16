@@ -1,11 +1,11 @@
 const ec = new TextEncoder()
 const dc = new TextDecoder()
 
-export function strToBytes (str : string) : ArrayBufferLike {
-  return ec.encode(str).buffer
+export function strToBytes (str : string) : Uint8Array {
+  return ec.encode(str)
 }
 
-export function hexToBytes (str : string) : ArrayBufferLike {
+export function hexToBytes (str : string) : Uint8Array {
   const bytes = []; let i, idx = 0
   if (str.length % 2 > 0) {
     throw new Error(`Invalid hex string length: ${str.length}`)
@@ -14,7 +14,7 @@ export function hexToBytes (str : string) : ArrayBufferLike {
     bytes[idx] = parseInt(str.slice(i, i + 2), 16)
     idx += 1
   }
-  return Uint8Array.from(bytes).buffer
+  return Uint8Array.from(bytes)
 }
 
 export function numToBytes (num : number) : Uint8Array {
@@ -63,4 +63,28 @@ export function bytesToBig (bytes : Uint8Array) : bigint {
     num = (num * 256n) + BigInt(bytes[i])
   }
   return BigInt(num)
+}
+
+export function buffer (value : any) : Uint8Array {
+  if (value instanceof ArrayBuffer) {
+    return new Uint8Array(value)
+  }
+  if (value instanceof Uint8Array) {
+    return value
+  }
+  const type = typeof value
+  switch (type) {
+    case 'bigint':
+      return bigToBytes(value)
+    case 'boolean':
+      return Uint8Array.of(value)
+    case 'number':
+      return numToBytes(value)
+    case 'string':
+      return (value.match(/^(02|03)*[0-9a-fA-F]{64}$/) !== null)
+        ? hexToBytes(value)
+        : ec.encode(value)
+    default:
+      throw TypeError('Unsupported format:' + type)
+  }
 }

@@ -4,14 +4,16 @@ import { BaseX  } from './basex.js'
 
 import { Bytes, Data, Json } from './types.js'
 
+type BufferLike = bigint | boolean | number | string | Uint8Array
+
 export const Hex = {
-  encode    : (x : Uint8Array) => Buff.buff(x).toHex(),
+  encode    : (x : Uint8Array) => Buff.raw(x).toHex(),
   decode    : (x : string)     => Buff.hex(x).toBytes(),
   normalize : (x : Bytes)  => Buff.normalize(x)
 }
 
 export const Txt = {
-  encode     : (x : Uint8Array) => Buff.buff(x).toStr(),
+  encode     : (x : Uint8Array) => Buff.raw(x).toStr(),
   decode     : (x : string)     => Buff.str(x).toBytes(),
   serialzie  : (x : Data)   => Buff.serialize(x),
   revitalize : (x : Data)  => Buff.revitalize(x)
@@ -41,14 +43,15 @@ export class Buff extends Uint8Array {
     return new Buff(C.bigToBytes(number), size, orient)
   }
 
-  static buff   = (x : ArrayBufferLike, s ?: number) : Buff => new Buff(x, s)
+  static buff   = (x : BufferLike,      s ?: number) : Buff => new Buff(C.buffer(x), s)
+  static raw    = (x : ArrayBufferLike, s ?: number) : Buff => new Buff(x, s)
   static str    = (x : string, s ?: number) : Buff => new Buff(C.strToBytes(x), s)
   static hex    = (x : string, s ?: number) : Buff => new Buff(C.hexToBytes(x), s)
   static json   = (x : Json)      : Buff => new Buff(C.strToBytes(JSON.stringify(x)))
-  static bech32 = (x : string, v  : number) : Buff => new Buff(Bech32.decode(x, v))
   static base58 = (x : string)    : Buff => new Buff(BaseX.decode(x, 'base58'))
   static base64 = (x : string)    : Buff => new Buff(BaseX.decode(x, 'base64'))
   static b64url = (x : string)    : Buff => new Buff(BaseX.decode(x, 'base64url'))
+  static bech32 = (x : string, ver ?: number) : Buff => new Buff(Bech32.decode(x, ver))
 
   constructor (
     data : ArrayBufferLike,
@@ -86,8 +89,8 @@ export class Buff extends Uint8Array {
   toBytes ()  : Uint8Array { return new Uint8Array(this) }
   toBase58 () : string { return BaseX.encode(this, 'base58') }
   toB64url () : string { return BaseX.encode(this, 'base64url') }
-  toBech32 (hrp : string, v : number) : string { return Bech32.encode(this, hrp, v) }
   toBase64 (padding ?: boolean) : string { return BaseX.encode(this, 'base64', padding) }
+  toBech32 (hrp : string, ver ?: number) : string { return Bech32.encode(this, hrp, ver) }
 
   prepend (data : Uint8Array) : Buff {
     return Buff.of(...data, ...this)
