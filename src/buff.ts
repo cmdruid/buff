@@ -6,6 +6,8 @@ import { Bytes, Data, Json } from './types.js'
 
 type BufferLike = bigint | boolean | number | string | Uint8Array
 
+const { crypto } = globalThis
+
 export const Hex = {
   encode    : (x : Uint8Array) => Buff.raw(x).toHex(),
   decode    : (x : string)     => Buff.hex(x).toBytes(),
@@ -70,6 +72,38 @@ export class Buff extends Uint8Array {
     return this
   }
 
+  get num () : number {
+    return this.toNum()
+  }
+
+  get big () : bigint {
+    return this.toBig()
+  }
+
+  get arr () : number[] {
+    return this.toArr()
+  }
+
+  get str () : string {
+    return this.toStr()
+  }
+
+  get hex () : string {
+    return this.toHex()
+  }
+
+  get raw () : Uint8Array {
+    return new Uint8Array(this)
+  }
+
+  get hash () : Promise<Uint8Array> {
+    return this.toHash()
+  }
+
+  get id () : Promise<string> {
+    return this.toHash().then(raw => new Buff(raw).hex)
+  }
+
   toNum (orient : 'le' | 'be' = 'le') : number {
     return (orient === 'le')
       ? C.bytesToNum(this.reverse())
@@ -80,6 +114,11 @@ export class Buff extends Uint8Array {
     return (orient === 'le')
       ? C.bytesToBig(this.reverse())
       : C.bytesToBig(this)
+  }
+
+  async toHash () : Promise<Uint8Array> {
+    return crypto.subtle.digest('SHA-256', this.raw)
+      .then(buff => new Uint8Array(buff))
   }
 
   toArr ()    : number[] { return Array.from(this) }
@@ -151,7 +190,7 @@ export class Buff extends Uint8Array {
   }
 
   static random (size : number = 32) : Buff {
-    return new Buff(globalThis.crypto.getRandomValues(new Uint8Array(size)))
+    return new Buff(crypto.getRandomValues(new Uint8Array(size)))
   }
 
   static encode = C.strToBytes
