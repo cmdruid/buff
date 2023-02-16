@@ -3,6 +3,7 @@ import { Bech32 } from './bech32.js'
 import { BaseX  } from './basex.js'
 
 import { Bytes, Data, Json } from './types.js'
+import { addChecksum, checkTheSum } from './utils.js'
 
 type BufferLike = bigint | boolean | number | string | Uint8Array
 
@@ -45,12 +46,16 @@ export class Buff extends Uint8Array {
     return new Buff(C.bigToBytes(number), size, orient)
   }
 
+  static async b58check (x : string) : Promise<Buff> {
+    const decoded = BaseX.decode(x, 'base58')
+    return new Buff(await checkTheSum(decoded))
+  }
+
   static buff   = (x : BufferLike,      s ?: number) : Buff => new Buff(C.buffer(x), s)
   static raw    = (x : ArrayBufferLike, s ?: number) : Buff => new Buff(x, s)
   static str    = (x : string, s ?: number) : Buff => new Buff(C.strToBytes(x), s)
   static hex    = (x : string, s ?: number) : Buff => new Buff(C.hexToBytes(x), s)
   static json   = (x : Json)      : Buff => new Buff(C.strToBytes(JSON.stringify(x)))
-  static base58 = (x : string)    : Buff => new Buff(BaseX.decode(x, 'base58'))
   static base64 = (x : string)    : Buff => new Buff(BaseX.decode(x, 'base64'))
   static b64url = (x : string)    : Buff => new Buff(BaseX.decode(x, 'base64url'))
   static bech32 = (x : string, ver ?: number) : Buff => new Buff(Bech32.decode(x, ver))
@@ -121,12 +126,15 @@ export class Buff extends Uint8Array {
       .then(buff => new Uint8Array(buff))
   }
 
+  async toBase58 () : Promise<string> {
+    return BaseX.encode(await addChecksum(this), 'base58')
+  }
+
   toArr ()    : number[] { return Array.from(this) }
   toStr ()    : string { return C.bytesToStr(this) }
   toHex ()    : string { return C.bytesToHex(this) }
   toJson ()   : Json   { return JSON.parse(C.bytesToStr(this)) }
   toBytes ()  : Uint8Array { return new Uint8Array(this) }
-  toBase58 () : string { return BaseX.encode(this, 'base58') }
   toB64url () : string { return BaseX.encode(this, 'base64url') }
   toBase64 (padding ?: boolean) : string { return BaseX.encode(this, 'base64', padding) }
   toBech32 (hrp : string, ver ?: number) : string { return Bech32.encode(this, hrp, ver) }
