@@ -17,14 +17,14 @@ export class Stream {
   }
 
   read (size : number) : Buff {
-    size = size ?? this.readVarint()
+    size = size ?? this.readSize()
     const chunk = this.peek(size)
     this.data = this.data.slice(size)
     this.size = this.data.length
     return chunk
   }
 
-  readVarint () : number {
+  readSize () : number {
     const num = this.read(1).toNum()
     switch (true) {
       case (num >= 0 && num < 0xFD):

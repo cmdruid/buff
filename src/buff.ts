@@ -12,67 +12,73 @@ const { crypto } = globalThis
 export const Hex = {
   encode    : (x : Uint8Array) => Buff.raw(x).toHex(),
   decode    : (x : string)     => Buff.hex(x).toBytes(),
-  normalize : (x : Bytes)  => Buff.normalize(x)
+  normalize : (x : Bytes)      => Buff.normalize(x)
 }
 
 export const Txt = {
   encode     : (x : Uint8Array) => Buff.raw(x).toStr(),
   decode     : (x : string)     => Buff.str(x).toBytes(),
-  serialzie  : (x : Data)   => Buff.serialize(x),
-  revitalize : (x : Data)  => Buff.revitalize(x)
+  serialzie  : (x : Data)       => Buff.serialize(x),
+  revitalize : (x : Data)       => Buff.revitalize(x)
 }
 
 export const Base64 = {
   encode    : (x : Uint8Array)    => BaseX.encode(x, 'base64'),
   decode    : (x : string)        => BaseX.decode(x, 'base64'),
-  encodeUrl : (x : Uint8Array) => BaseX.encode(x, 'base64'),
-  decodeUrl : (x : string)     => BaseX.decode(x, 'base64')
+  encodeUrl : (x : Uint8Array)    => BaseX.encode(x, 'base64'),
+  decodeUrl : (x : string)        => BaseX.decode(x, 'base64')
 }
 
 export class Buff extends Uint8Array {
   static num = (
     number : number,
-    size ?: number | null,
-    orient : 'le' | 'be' = 'le'
+    size  ?: number,
+    endian : 'le' | 'be' = 'le'
   ) : Buff => {
-    return new Buff(C.numToBytes(number), size, orient)
+    const buff = (number !== 0)
+      ? new Buff(C.numToBytes(number), size)
+      : new Buff(Uint8Array.of(0))
+    return (endian === 'le')
+      ? buff.reverse()
+      : buff
   }
 
   static big = (
     number : bigint,
-    size ?: number | null,
-    orient : 'le' | 'be' = 'le'
+    size  ?: number,
+    endian : 'le' | 'be' = 'le'
   ) : Buff => {
-    return new Buff(C.bigToBytes(number), size, orient)
+    const buff = (number !== 0n)
+      ? new Buff(C.bigToBytes(number), size)
+      : new Buff(Uint8Array.of(0))
+    return (endian === 'le')
+      ? buff.reverse()
+      : buff
   }
 
-  static async b58check (x : string) : Promise<Buff> {
-    const decoded = BaseX.decode(x, 'base58')
+  static async b58check (data : string) : Promise<Buff> {
+    const decoded = BaseX.decode(data, 'base58')
     return new Buff(await checkTheSum(decoded))
   }
 
-  static buff   = (x : BufferLike,      s ?: number) : Buff => new Buff(C.buffer(x), s)
-  static raw    = (x : ArrayBufferLike, s ?: number) : Buff => new Buff(x, s)
-  static str    = (x : string, s ?: number) : Buff => new Buff(C.strToBytes(x), s)
-  static hex    = (x : string, s ?: number) : Buff => new Buff(C.hexToBytes(x), s)
-  static json   = (x : Json)      : Buff => new Buff(C.strToBytes(JSON.stringify(x)))
-  static base64 = (x : string)    : Buff => new Buff(BaseX.decode(x, 'base64'))
-  static b64url = (x : string)    : Buff => new Buff(BaseX.decode(x, 'base64url'))
-  static bech32 = (x : string, ver ?: number) : Buff => new Buff(Bech32.decode(x, ver))
+  static any    = (data : BufferLike,      size ?: number) : Buff => new Buff(C.buffer(data), size)
+  static raw    = (data : ArrayBufferLike, size ?: number) : Buff => new Buff(data, size)
+  static str    = (data : string, size ?: number) : Buff => new Buff(C.strToBytes(data), size)
+  static hex    = (data : string, size ?: number) : Buff => new Buff(C.hexToBytes(data), size)
+  static json   = (data : Json)   : Buff => new Buff(C.strToBytes(JSON.stringify(data)))
+  static base64 = (data : string) : Buff => new Buff(BaseX.decode(data, 'base64'))
+  static b64url = (data : string) : Buff => new Buff(BaseX.decode(data, 'base64url'))
+  static bech32 = (data : string, ver = 0) : Buff => new Buff(Bech32.decode(data, ver))
 
   constructor (
-    data : ArrayBufferLike,
-    size : number | null = null,
-    orient : 'le' | 'be' = 'be'
+    data   : ArrayBufferLike,
+    size  ?: number
   ) {
-    if (size !== null) {
+    if (size !== undefined) {
       const tmp = new Uint8Array(size).fill(0)
       tmp.set(new Uint8Array(data))
       data = tmp.buffer
     }
-    data = (orient === 'le')
-      ? new Uint8Array(data).reverse()
-      : data
     super(data)
     return this
   }
@@ -101,32 +107,40 @@ export class Buff extends Uint8Array {
     return new Uint8Array(this)
   }
 
-  get hash () : Promise<Uint8Array> {
-    return this.toHash()
+  get base64 () : string {
+    return this.toBase64()
+  }
+
+  get b64url () : string {
+    return this.toB64url()
+  }
+
+  get digest () : Promise<Uint8Array> {
+    return this.toDigest()
   }
 
   get id () : Promise<string> {
-    return this.toHash().then(raw => new Buff(raw).hex)
+    return this.toDigest().then(raw => new Buff(raw).hex)
   }
 
-  toNum (orient : 'le' | 'be' = 'le') : number {
-    return (orient === 'le')
+  toNum (endian : 'le' | 'be' = 'le') : number {
+    return (endian === 'le')
       ? C.bytesToNum(this.reverse())
       : C.bytesToNum(this)
   }
 
-  toBig (orient : 'le' | 'be' = 'le') : bigint {
-    return (orient === 'le')
+  toBig (endian : 'le' | 'be' = 'le') : bigint {
+    return (endian === 'le')
       ? C.bytesToBig(this.reverse())
       : C.bytesToBig(this)
   }
 
-  async toHash () : Promise<Uint8Array> {
-    return crypto.subtle.digest('SHA-256', this.raw)
+  async toDigest (type : AlgorithmIdentifier = 'SHA-256') : Promise<Uint8Array> {
+    return crypto.subtle.digest(type, this.raw)
       .then(buff => new Uint8Array(buff))
   }
 
-  async toBase58 () : Promise<string> {
+  async tob58check () : Promise<string> {
     return BaseX.encode(await addChecksum(this), 'base58')
   }
 
@@ -137,7 +151,7 @@ export class Buff extends Uint8Array {
   toBytes ()  : Uint8Array { return new Uint8Array(this) }
   toB64url () : string { return BaseX.encode(this, 'base64url') }
   toBase64 (padding ?: boolean) : string { return BaseX.encode(this, 'base64', padding) }
-  toBech32 (hrp : string, ver ?: number) : string { return Bech32.encode(this, hrp, ver) }
+  toBech32 (hrp : string, ver = 0) : string { return Bech32.encode(this, hrp, ver) }
 
   prepend (data : Uint8Array) : Buff {
     return Buff.of(...data, ...this)
@@ -151,6 +165,8 @@ export class Buff extends Uint8Array {
     return new Buff(new Uint8Array(this).slice(start, end))
   }
 
+  rev = this.reverse
+
   reverse () : Buff {
     return new Buff(new Uint8Array(this).reverse())
   }
@@ -159,8 +175,8 @@ export class Buff extends Uint8Array {
     this.set(bytes, offset)
   }
 
-  prependVarint (num = this.length) : Buff {
-    return Buff.of(...Buff.readVarint(num), ...this)
+  prefixSize (num = this.length) : Buff {
+    return Buff.of(...Buff.readSize(num), ...this)
   }
 
   static from (data : Uint8Array | number[]) : Buff {
@@ -183,7 +199,7 @@ export class Buff extends Uint8Array {
     return new Buff(totalBytes, totalSize)
   }
 
-  static readVarint (num : number) : Buff {
+  static readSize (num : number) : Buff {
     if (num < 0xFD) {
       return Buff.num(num, 1)
     } else if (num < 0x10000) {

@@ -1,3 +1,4 @@
+const ec = new TextEncoder()
 
 interface Alphabet {
   name    : string
@@ -29,10 +30,12 @@ function getAlphabet (name : string) : string {
 }
 
 function encode (
-  data    : Uint8Array,
+  data    : string | Uint8Array,
   charset : string,
   padding : boolean = false
 ) : string {
+  if (typeof data === 'string') data = ec.encode(data)
+
   const alphabet = getAlphabet(charset)
 
   const len : number   = alphabet.length
@@ -91,7 +94,7 @@ function decode (
       throw new Error(`Character range out of bounds: ${c}`)
     }
 
-    i = (c > 0 || (b.length ^ i) > 0) ? i : b.push(0)
+    if (!(c > 0 || (b.length ^ i) > 0)) b.push(0)
 
     while (j in d || c > 0) {
       n = d[j]
@@ -106,7 +109,7 @@ function decode (
     b.push(d[j])
   }
 
-  return Uint8Array.from(b)
+  return new Uint8Array(b)
 }
 
 export const BaseX = {
