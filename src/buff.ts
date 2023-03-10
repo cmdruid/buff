@@ -35,12 +35,10 @@ export class Buff extends Uint8Array {
     size  ?: number,
     endian : 'le' | 'be' = 'le'
   ) : Buff => {
-    const buff = (number !== 0)
-      ? new Buff(C.numToBytes(number), size)
-      : new Buff(Uint8Array.of(0))
+    const b = C.numToBytes(number)
     return (endian === 'le')
-      ? buff.reverse()
-      : buff
+      ? new Buff(b, size).reverse()
+      : new Buff(b, size)
   }
 
   static big = (
@@ -48,12 +46,10 @@ export class Buff extends Uint8Array {
     size  ?: number,
     endian : 'le' | 'be' = 'le'
   ) : Buff => {
-    const buff = (number !== 0n)
-      ? new Buff(C.bigToBytes(number), size)
-      : new Buff(Uint8Array.of(0))
+    const b = C.bigToBytes(number)
     return (endian === 'le')
-      ? buff.reverse()
-      : buff
+      ? new Buff(b, size).reverse()
+      : new Buff(b, size)
   }
 
   static async b58check (data : string) : Promise<Buff> {
@@ -225,9 +221,9 @@ export class Buff extends Uint8Array {
     size ?: number
   ) : Uint8Array {
     if (data instanceof Uint8Array)  return data
-    if (typeof data === 'string') return Buff.hex(data, size).toBytes()
-    if (typeof data === 'number') return Buff.num(data, size).toBytes()
-    if (typeof data === 'bigint') return Buff.big(data, size).toBytes()
+    if (typeof data === 'string') return Buff.hex(data, size).raw
+    if (typeof data === 'number') return Buff.num(data, size).raw
+    if (typeof data === 'bigint') return Buff.big(data, size).raw
     throw TypeError(`Unrecognized format: ${typeof data}`)
   }
 

@@ -18,6 +18,7 @@ export function hexToBytes (str : string) : Uint8Array {
 }
 
 export function numToBytes (num : number) : Uint8Array {
+  if (num === 0) return Uint8Array.of(0x00)
   const bytes = []
   while (num > 0) {
     const byte = num & 0xff
@@ -28,6 +29,7 @@ export function numToBytes (num : number) : Uint8Array {
 }
 
 export function bigToBytes (big : bigint) : Uint8Array {
+  if (big === 0n) return Uint8Array.of(0x00)
   const bytes = []
   while (big > 0n) {
     const byte = big & 0xffn
