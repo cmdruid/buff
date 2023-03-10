@@ -35,10 +35,8 @@ export class Buff extends Uint8Array {
     size  ?: number,
     endian : 'le' | 'be' = 'le'
   ) : Buff => {
-    const b = C.numToBytes(number)
-    return (endian === 'le')
-      ? new Buff(b, size).reverse()
-      : new Buff(b, size)
+    const b = new Buff(C.numToBytes(number), size)
+    return (endian === 'le') ? b.reverse() : b
   }
 
   static big = (
@@ -46,10 +44,8 @@ export class Buff extends Uint8Array {
     size  ?: number,
     endian : 'le' | 'be' = 'le'
   ) : Buff => {
-    const b = C.bigToBytes(number)
-    return (endian === 'le')
-      ? new Buff(b, size).reverse()
-      : new Buff(b, size)
+    const b = new Buff(C.bigToBytes(number), size)
+    return (endian === 'le') ? b.reverse() : b
   }
 
   static async b58check (data : string) : Promise<Buff> {
@@ -160,8 +156,6 @@ export class Buff extends Uint8Array {
   slice (start ?: number, end ?: number) : Buff {
     return new Buff(new Uint8Array(this).slice(start, end))
   }
-
-  rev = this.reverse
 
   reverse () : Buff {
     return new Buff(new Uint8Array(this).reverse())

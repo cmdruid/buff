@@ -22,7 +22,7 @@ Buff
   .hex(hexData)    => Buff<Uint8Array>
   .num(numData)    => Buff<Uint8Array>
   .big(bigData)    => Buff<Uint8Array>
-  .buff(buffer)    => Buff<Uint8Array>
+  .raw(buffer)     => Buff<Uint8Array>
   .json(jsonData)  => Buff<Uint8Array>
   .bech32(strData) => Buff<Uint8Array>
   .base58(strData) => Buff<Uint8Array>
