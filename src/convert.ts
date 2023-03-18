@@ -7,8 +7,11 @@ export function strToBytes (str : string) : Uint8Array {
 
 export function hexToBytes (str : string) : Uint8Array {
   const bytes = []; let i, idx = 0
+  if (str.match(/[^a-fA-f0-9]/) !== null) {
+    throw new TypeError('Invalid hex string: ' + str)
+  }
   if (str.length % 2 > 0) {
-    throw new Error(`Invalid hex string length: ${str.length}`)
+    throw new Error(`Hex string length is uneven: ${str.length}`)
   }
   for (i = 0; i < str.length; i += 2) {
     bytes[idx] = parseInt(str.slice(i, i + 2), 16)
@@ -67,26 +70,25 @@ export function bytesToBig (bytes : Uint8Array) : bigint {
   return BigInt(num)
 }
 
-export function buffer (value : any) : Uint8Array {
+export function buffer (value : any, bytes = true) : Uint8Array {
   if (value instanceof ArrayBuffer) {
     return new Uint8Array(value)
   }
   if (value instanceof Uint8Array) {
     return value
   }
-  const type = typeof value
-  switch (type) {
+  switch (typeof value) {
     case 'bigint':
       return bigToBytes(value)
     case 'boolean':
-      return Uint8Array.of(value)
+      return Uint8Array.of(value ? 1 : 0)
     case 'number':
       return numToBytes(value)
     case 'string':
-      return (value.match(/^(02|03)*[0-9a-fA-F]{64}$/) !== null)
+      return (bytes)
         ? hexToBytes(value)
         : ec.encode(value)
     default:
-      throw TypeError('Unsupported format:' + type)
+      throw TypeError('Unsupported format:' + String(typeof value))
   }
 }
