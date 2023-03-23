@@ -1,5 +1,6 @@
 export * from './basex.js'
 export * from './bech32.js'
+export * from './base64.js'
 export * from './buff.js'
 export * from './check.js'
 export * from './sha2.js'

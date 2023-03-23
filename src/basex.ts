@@ -9,14 +9,6 @@ const ALPHABETS : Alphabet[] = [
   {
     name    : 'base58',
     charset : '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
-  },
-  {
-    name    : 'base64',
-    charset : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-  },
-  {
-    name    : 'base64url',
-    charset : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
   }
 ]
 

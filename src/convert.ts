@@ -31,6 +31,31 @@ export function numToBytes (num : number) : Uint8Array {
   return Uint8Array.from(bytes)
 }
 
+export function binaryToBytes (binary : number[]) : Uint8Array {
+  const bytes = []
+  if (binary.length % 8 !== 0) {
+    throw new Error('Binary array is invalid length: ' + String(binary.length))
+  }
+  for (let i = 0; i < binary.length; i += 8) {
+    const byte = binary.slice(i, i + 8).map(e => String(e)).join('')
+    bytes.push(parseInt(byte, 2))
+  }
+  return new Uint8Array(bytes)
+}
+
+export function bytesToBinary (bytes : Uint8Array) : number[] {
+  const binary = []
+  for (const num of bytes) {
+    const bits = num
+      .toString(2)
+      .padStart(8, '0')
+      .split('')
+      .map(e => parseInt(e))
+    binary.push(...bits)
+  }
+  return binary
+}
+
 export function bigToBytes (big : bigint) : Uint8Array {
   if (big === 0n) return Uint8Array.of(0x00)
   const bytes = []
