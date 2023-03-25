@@ -6,7 +6,8 @@ export function strToBytes (str : string) : Uint8Array {
 }
 
 export function hexToBytes (str : string) : Uint8Array {
-  const bytes = []; let i, idx = 0
+  const bytes = new Uint8Array(str.length / 2)
+  let i, idx = 0
   if (str.match(/[^a-fA-f0-9]/) !== null) {
     throw new TypeError('Invalid hex string: ' + str)
   }
@@ -17,7 +18,7 @@ export function hexToBytes (str : string) : Uint8Array {
     bytes[idx] = parseInt(str.slice(i, i + 2), 16)
     idx += 1
   }
-  return Uint8Array.from(bytes)
+  return bytes
 }
 
 export function numToBytes (num : number) : Uint8Array {
@@ -28,7 +29,7 @@ export function numToBytes (num : number) : Uint8Array {
     bytes.push(byte)
     num = (num - byte) / 256
   }
-  return Uint8Array.from(bytes)
+  return new Uint8Array(bytes)
 }
 
 export function binaryToBytes (binary : number[]) : Uint8Array {
@@ -64,7 +65,7 @@ export function bigToBytes (big : bigint) : Uint8Array {
     bytes.push(Number(byte))
     big = (big - byte) / 256n
   }
-  return Uint8Array.from(bytes)
+  return new Uint8Array(bytes)
 }
 
 export function bytesToStr (bytes : Uint8Array) : string {
@@ -72,11 +73,11 @@ export function bytesToStr (bytes : Uint8Array) : string {
 }
 
 export function bytesToHex (bytes : Uint8Array) : string {
-  const hex = []; let i
-  for (i = 0; i < bytes.length; i++) {
-    hex.push(bytes[i].toString(16).padStart(2, '0'))
+  const chars = new Array(bytes.length)
+  for (let i = 0; i < bytes.length; i++) {
+   chars.push(bytes[i].toString(16).padStart(2, '0'))
   }
-  return hex.join('')
+  return chars.join('')
 }
 
 export function bytesToNum (bytes : Uint8Array) : number {

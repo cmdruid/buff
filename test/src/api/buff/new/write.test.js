@@ -4,5 +4,5 @@ export default function (t, f) {
   const tested = f.raw(new ArrayBuffer(4))
   tested.write(source, 2)
   t.plan(1)
-  t.deepEqual(target, tested.toBytes())
+  t.deepEqual(target, tested.raw)
 }

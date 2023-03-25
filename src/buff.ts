@@ -43,7 +43,7 @@ export class Buff extends Uint8Array {
   static hex     = (data : string, size ?: number) : Buff => new Buff(C.hexToBytes(data), size)
   static bin     = (data : number[], size ?: number) : Buff => new Buff(C.binaryToBytes(data), size)
   static json    = (data : Json)   : Buff => new Buff(C.strToBytes(JSON.stringify(data)))
-  static bytes   = (data : Bytes, size ?: number) : Buff => new Buff(C.buffer(data, true), size)
+  static bytes   = (data : BufferLike, size ?: number) : Buff => new Buff(C.buffer(data, true), size)
   static base64  = (data : string) : Buff => new Buff(Base64.decode(data))
   static b64url  = (data : string) : Buff => new Buff(B64URL.decode(data))
   static bech32  = (data : string, ver = 0) : Buff => new Buff(Bech32.decode(data, ver))
@@ -53,7 +53,7 @@ export class Buff extends Uint8Array {
     data   : BufferLike,
     size  ?: number
   ) {
-    data = C.buffer(data, false)
+    data = C.buffer(data, true)
     if (typeof size === 'number') {
       const tmp = new Uint8Array(size).fill(0)
       tmp.set(new Uint8Array(data))
@@ -160,12 +160,12 @@ export class Buff extends Uint8Array {
   toBech32 (hrp : string, ver = 0) : string { return Bech32.encode(this, hrp, ver) }
   toBech32m (hrp : string) : string { return Bech32.encode(this, hrp, 1) }
 
-  prepend (data : Uint8Array) : Buff {
-    return Buff.of(...data, ...this)
+  prepend (data : BufferLike) : Buff {
+    return Buff.join([Buff.bytes(data), this])
   }
 
-  append (data : Uint8Array) : Buff {
-    return Buff.of(...this, ...data)
+  append (data : BufferLike) : Buff {
+    return Buff.join([this, Buff.bytes(data)])
   }
 
   slice (start ?: number, end ?: number) : Buff {
@@ -181,7 +181,8 @@ export class Buff extends Uint8Array {
   }
 
   prefixSize (endian ?: Endian) : Buff {
-    return Buff.of(...Buff.readSize(this.length, endian), ...this)
+    const size = Buff.varInt(this.length, endian)
+    return Buff.join([size, this])
   }
 
   static from (data : Uint8Array | number[]) : Buff {
@@ -192,26 +193,27 @@ export class Buff extends Uint8Array {
     return new Buff(Uint8Array.of(...args))
   }
 
-  static join (arr : Uint8Array[]) : Buff {
+  static join (arr : BufferLike[]) : Buff {
     let i, idx = 0
-    const totalSize = arr.reduce((prev, curr) => prev + curr.length, 0)
-    const totalBytes = new Uint8Array(totalSize)
-    for (const bytes of arr) {
+    const data = arr.map(e => Buff.bytes(e))
+    const size = data.reduce((prev, curr) => prev + curr.length, 0)
+    const buff = new Buff(0, size)
+    for (const bytes of data) {
       for (i = 0; i < bytes.length; idx++, i++) {
-        totalBytes[idx] = bytes[i]
+        buff[idx] = bytes[i]
       }
     }
-    return new Buff(totalBytes, totalSize)
+    return buff
   }
 
-  static readSize (num : number, endian ?: Endian) : Buff {
+  static varInt (num : number, endian ?: Endian) : Buff {
     if (num < 0xFD) {
       return Buff.num(num, 1)
     } else if (num < 0x10000) {
       return Buff.of(0xFD, ...Buff.num(num, 2, endian))
     } else if (num < 0x100000000) {
       return Buff.of(0xFE, ...Buff.num(num, 4, endian))
-    } else if (num < 0x10000000000000000) {
+    } else if (BigInt(num) < 0x10000000000000000n) {
       return Buff.of(0xFF, ...Buff.num(num, 8, endian))
     } else {
       throw new Error(`Value is too large: ${num}`)
