@@ -1,7 +1,7 @@
 {
   "name": "@cmdcode/buff-utils",
   "type": "module",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "Cross-platform utility library for working with array buffers and moving between formats.",
   "author": "Christopher Scott",
   "license": "CC-BY-1.0",
@@ -39,7 +39,7 @@
     "scratch": "node --loader ts-node/esm --no-warnings test/scratch.ts",
     "format": "prettier --write .",
     "lint": "eslint . --ext .ts",
-    "tape": "node --loader ts-node/esm --no-warnings test/index.test.js",
+    "tape": "node --loader ts-node/esm --no-warnings test/tape.ts",
     "test": "nyc --reporter=lcov --require ts-node/register yarn tape | tap-spec; nyc report ---reporter=text",
     "types": "tsc",
     "release": "yarn lint && yarn test && yarn build"
