@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-// Revised to Typescript.
+// Revised by Chrisopther Scott.
 
 type state = [bigint, bigint, bigint, bigint, bigint]
 

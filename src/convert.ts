@@ -1,5 +1,34 @@
+import { Bytes } from './types.js'
+
 const ec = new TextEncoder()
 const dc = new TextDecoder()
+
+export function bin2Num (
+  bin : number[] | string
+) : number {
+  if (typeof bin === 'string') {
+    bin = bin.split('').map(e => parseInt(e))
+  }
+  return bin.reduce((prev, next) => {
+    if (next !== 1 && next !== 0) {
+      throw new Error('Invalid bit: ' + next)
+    }
+    return prev * 2 + next
+  })
+}
+
+export function num2Bin (
+  num : number | bigint
+) : number[] {
+  const bits = []
+  let sum = BigInt(num)
+  while (sum > 1) {
+    bits.push((sum % 2n === 1n) ? 1 : 0)
+    sum = sum / 2n
+  }
+  if (sum === 1n) bits.push(1)
+  return bits.reverse()
+}
 
 export function strToBytes (str : string) : Uint8Array {
   return ec.encode(str)
@@ -32,29 +61,55 @@ export function numToBytes (num : number) : Uint8Array {
   return new Uint8Array(bytes)
 }
 
-export function binaryToBytes (binary : number[]) : Uint8Array {
-  const bytes = []
+/**
+ * Convert a binary string or array of 0s and 1s into a Uint8Array.
+ * @param {string | number[]} binary - A binary string or an array of 0s and 1s.
+ * @return {Uint8Array} The resulting Uint8Array.
+ */
+export function binaryToBytes (binary : string | number[]) : Uint8Array {
+  if (typeof binary === 'string') {
+    binary = binary.split('').map(Number)
+  } else if (!Array.isArray(binary)) {
+    throw new Error('Invalid input type: expected a string or an array of numbers.')
+  }
+
   if (binary.length % 8 !== 0) {
-    throw new Error('Binary array is invalid length: ' + String(binary.length))
+    throw new Error(`Binary array is invalid length: ${binary.length}`)
   }
-  for (let i = 0; i < binary.length; i += 8) {
-    const byte = binary.slice(i, i + 8).map(e => String(e)).join('')
-    bytes.push(parseInt(byte, 2))
+
+  const bytes = new Uint8Array(binary.length / 8)
+  for (let i = 0, ct = 0; i < binary.length; i += 8, ct++) {
+    let byte = 0
+    for (let j = 0; j < 8; j++) {
+      byte |= (binary[i + j] << (7 - j))
+    }
+    bytes[ct] = byte
   }
-  return new Uint8Array(bytes)
+
+  return bytes
 }
 
 export function bytesToBinary (bytes : Uint8Array) : number[] {
-  const binary = []
+  // Create a binary array that is sized to (number of bytes) * 8.
+  const bin = new Array(bytes.length * 8)
+
+  let count = 0
+
+  // Iterate through each number in the byte array.
   for (const num of bytes) {
-    const bits = num
-      .toString(2)
-      .padStart(8, '0')
-      .split('')
-      .map(e => parseInt(e))
-    binary.push(...bits)
+    if (num > 255) {
+      // Throw an error on invalid number ranges.
+      throw new Error(`Invalid byte value: ${num}. Byte values must be between 0 and 255.`)
+    }
+
+    // Convert the current number into bits using bitwise operations.
+    for (let i = 7; i >= 0; i--, count++) {
+      bin[count] = (num >> i) & 1
+    }
   }
-  return binary
+
+  // Return the complete binary array.
+  return bin
 }
 
 export function bigToBytes (big : bigint) : Uint8Array {
@@ -117,4 +172,35 @@ export function buffer (value : any, bytes = true) : Uint8Array {
     default:
       throw TypeError('Unsupported format:' + String(typeof value))
   }
+}
+
+export function normalize (bytes : Bytes) : Uint8Array {
+  return buffer(bytes, true)
+}
+
+export function hexify (bytes : Bytes) : string {
+  bytes = buffer(bytes, true)
+  return bytesToHex(bytes)
+}
+
+export function serialize (data : any) : Uint8Array {
+  if (typeof data === 'object') {
+    if (data instanceof Uint8Array) {
+      return data
+    }
+    try {
+      return strToBytes(JSON.stringify(data))
+    } catch { throw TypeError('Object is not serializable.') }
+  }
+  return buffer(data, false)
+}
+
+export function revive<T = Object> (data : any) : string | T {
+  if (data instanceof Uint8Array) {
+    data = bytesToStr(data)
+  }
+  if (typeof data === 'string') {
+    try { return JSON.parse(data) } catch { return data }
+  }
+  return data
 }

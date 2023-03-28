@@ -1,10 +1,10 @@
-import * as C        from './convert.js'
-import { Bech32 }    from './bech32.js'
-import { BaseX  }    from './basex.js'
-import { ripemd160 } from './ripemd.js'
-import { Base64, B64URL }           from './base64.js'
-import { hmac256, sha256 }          from './sha2.js'
-import { Bytes, Data, Json }        from './types.js'
+import * as C              from './convert.js'
+import { Bech32 }          from './bech32.js'
+import { BaseX  }          from './basex.js'
+import { ripemd160 }       from './ripemd.js'
+import { Base64, B64URL }  from './base64.js'
+import { hmac256, sha256 } from './sha2.js'
+import { Bytes, Json }     from './types.js'
 import { addChecksum, checkTheSum } from './utils.js'
 
 type BufferLike = Buff | ArrayBuffer | ArrayBufferLike | Uint8Array | string | number | bigint | boolean
@@ -32,6 +32,11 @@ export class Buff extends Uint8Array {
     return (endian === 'le') ? b.reverse() : b
   }
 
+  static bin = (
+    data : string | number[],
+    size ?: number
+  ) : Buff => new Buff(C.binaryToBytes(data), size)
+
   static b58check (data : string) : Buff {
     const decoded = BaseX.decode(data, 'base58')
     return new Buff(checkTheSum(decoded))
@@ -41,8 +46,8 @@ export class Buff extends Uint8Array {
   static raw     = (data : ArrayBufferLike, size ?: number) : Buff => new Buff(data, size)
   static str     = (data : string, size ?: number) : Buff => new Buff(C.strToBytes(data), size)
   static hex     = (data : string, size ?: number) : Buff => new Buff(C.hexToBytes(data), size)
-  static bin     = (data : number[], size ?: number) : Buff => new Buff(C.binaryToBytes(data), size)
   static json    = (data : Json)   : Buff => new Buff(C.strToBytes(JSON.stringify(data)))
+  static data    = (data : BufferLike, size ?: number) : Buff => new Buff(C.serialize(data), size)
   static bytes   = (data : BufferLike, size ?: number) : Buff => new Buff(C.buffer(data, true), size)
   static base64  = (data : string) : Buff => new Buff(Base64.decode(data))
   static b64url  = (data : string) : Buff => new Buff(B64URL.decode(data))
@@ -71,10 +76,6 @@ export class Buff extends Uint8Array {
     return this.toBig()
   }
 
-  get arr () : number[] {
-    return this.toArr()
-  }
-
   get str () : string {
     return this.toStr()
   }
@@ -87,7 +88,11 @@ export class Buff extends Uint8Array {
     return new Uint8Array(this)
   }
 
-  get bin () : number[] {
+  get bits () : number[] {
+    return this.toBits()
+  }
+
+  get bin () : string {
     return this.toBin()
   }
 
@@ -149,14 +154,14 @@ export class Buff extends Uint8Array {
     return BaseX.encode(addChecksum(this), 'base58')
   }
 
-  toArr ()    : number[] { return Array.from(this) }
-  toStr ()    : string { return C.bytesToStr(this) }
-  toHex ()    : string { return C.bytesToHex(this) }
-  toJson ()   : Json   { return JSON.parse(C.bytesToStr(this)) }
+  toStr ()    : string     { return C.bytesToStr(this) }
+  toHex ()    : string     { return C.bytesToHex(this) }
+  toJson ()   : Json       { return JSON.parse(C.bytesToStr(this)) }
   toBytes ()  : Uint8Array { return new Uint8Array(this) }
-  toBin    () : number[] { return C.bytesToBinary(this) }
-  toB64url () : string { return B64URL.encode(this) }
-  toBase64 () : string { return Base64.encode(this) }
+  toBits   () : number[]   { return C.bytesToBinary(this) }
+  toBin    () : string     { return C.bytesToBinary(this).join('') }
+  toB64url () : string     { return B64URL.encode(this) }
+  toBase64 () : string     { return Base64.encode(this) }
   toBech32 (hrp : string, ver = 0) : string { return Bech32.encode(this, hrp, ver) }
   toBech32m (hrp : string) : string { return Bech32.encode(this, hrp, 1) }
 
@@ -220,47 +225,27 @@ export class Buff extends Uint8Array {
     }
   }
 
+  static encode = C.strToBytes
+  static decode = C.bytesToStr
+
   static random (size : number = 32) : Buff {
     return new Buff(crypto.getRandomValues(new Uint8Array(size)))
   }
 
-  static encode = C.strToBytes
-  static decode = C.bytesToStr
-
-  static normalize (
-    data  : Bytes,
-    size ?: number
-  ) : Uint8Array {
-    if (data instanceof Uint8Array)  return data
-    if (typeof data === 'string') return Buff.hex(data, size).raw
-    if (typeof data === 'number') return Buff.num(data, size).raw
-    if (typeof data === 'bigint') return Buff.big(data, size).raw
-    throw TypeError(`Unrecognized format: ${typeof data}`)
+  static normalize (bytes : Bytes, size ?: number) : Buff {
+    return new Buff(C.buffer(bytes, true), size)
   }
 
-  static serialize (data : Data) : Uint8Array {
-    if (typeof data === 'string') {
-      return Buff.str(data).raw
-    }
-    if (typeof data === 'object') {
-      if (data instanceof Uint8Array) {
-        return data
-      }
-      try {
-        return Buff.json(data).raw
-      } catch { throw TypeError('Object is not serializable.') }
-    }
-    throw TypeError(`Unrecognized format: ${typeof data}`)
+  static hexify (bytes : Bytes) : string {
+    return C.hexify(bytes)
   }
 
-  static revitalize (data : Data) : Json {
-    if (data instanceof Uint8Array) {
-      data = C.bytesToStr(data)
-    }
-    if (typeof data === 'string') {
-      try { return JSON.parse(data) } catch { return data }
-    }
-    return data
+  static serialize (data : any, size ?: number) : Buff {
+    return new Buff(C.serialize(data), size)
+  }
+
+  static revive (data : string) : string {
+    return C.revive(data)
   }
 }
 
@@ -308,13 +293,13 @@ export class Stream {
 export const Hex = {
   encode    : (x : Uint8Array) => Buff.raw(x).hex,
   decode    : (x : string)     => Buff.hex(x).raw,
-  normalize : (x : Bytes)      => Buff.normalize(x),
+  normalize : (x : Bytes)      => Buff.bytes(x).raw,
   serialize : (x : Bytes)      => Buff.bytes(x).hex
 }
 
 export const Txt = {
-  encode     : (x : Uint8Array) => Buff.raw(x).toStr(),
-  decode     : (x : string)     => Buff.str(x).toBytes(),
-  serialzie  : (x : Data)       => Buff.serialize(x),
-  revitalize : (x : Data)       => Buff.revitalize(x)
+  encode    : (x : Uint8Array) => Buff.raw(x).str,
+  decode    : (x : string)     => Buff.str(x).raw,
+  serialzie : (x : any)        => Buff.serialize(x).raw,
+  revive    : (x : string)     => Buff.revive(x)
 }
