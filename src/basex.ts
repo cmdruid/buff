@@ -1,3 +1,6 @@
+import { joinArray } from './utils.js'
+import { hash256 }   from './sha2.js'
+
 const ec = new TextEncoder()
 
 interface Alphabet {
@@ -104,7 +107,42 @@ function decode (
   return new Uint8Array(b)
 }
 
+export function addChecksum (
+  data : Uint8Array
+) : Uint8Array {
+  const sum = hash256(data)
+  return joinArray([ data, sum.slice(0, 4) ])
+}
+
+export function checkTheSum (
+  data : Uint8Array
+) : Uint8Array {
+  const ret = data.slice(0, -4)
+  const chk = data.slice(-4)
+  const sum = hash256(ret).slice(0, 4)
+  if (sum.toString() !== chk.toString()) {
+    throw new Error('Invalid checksum!')
+  }
+  return ret
+}
+
 export const BaseX = {
   encode,
   decode
+}
+
+export const Base58 = {
+  encode : (data : string | Uint8Array) => BaseX.encode(data, 'base58'),
+  decode : (data : string) => BaseX.decode(data, 'base58')
+}
+
+export const Base58C = {
+  encode: (data : Uint8Array) => {
+    const withSum = addChecksum(data)
+    return BaseX.encode(withSum, 'base58')
+  },
+  decode: (data : string) =>  {
+    const decoded = BaseX.decode(data, 'base58')
+    return checkTheSum(decoded)
+  }
 }

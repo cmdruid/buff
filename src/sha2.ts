@@ -398,7 +398,7 @@ export function hkdf (
   info  ?: Uint8Array,
   length : number = 32
 ) : Uint8Array {
-    const counter = new Uint8Array([1])
+    const counter = new Uint8Array([ 1 ])
 
     // HKDF-Extract uses salt as HMAC key, and key as data.
     const okm = hmac256(salt, key)

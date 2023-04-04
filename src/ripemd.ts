@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-// Revised by Chrisopther Scott.
+// Revised and translated into Typescript by Chrisopther Scott.
 
 type state = [bigint, bigint, bigint, bigint, bigint]
 
@@ -371,10 +371,10 @@ const RR = [
 ]
 
 // K constants for the left path.
-const KL = [0n, 0x5a827999n, 0x6ed9eba1n, 0x8f1bbcdcn, 0xa953fd4en]
+const KL = [ 0n, 0x5a827999n, 0x6ed9eba1n, 0x8f1bbcdcn, 0xa953fd4en ]
 
 // K constants for the right path.
-const KR = [0x50a28be6n, 0x5c4dd124n, 0x6d703ef3n, 0x7a6d76e9n, 0n]
+const KR = [ 0x50a28be6n, 0x5c4dd124n, 0x6d703ef3n, 0x7a6d76e9n, 0n ]
 
 function fi (x : bigint, y : bigint, z : bigint, i : bigint) : bigint {
   // The f1, f2, f3, f4, and f5 functions from the specification.
@@ -455,7 +455,7 @@ function compress (
     ar = ert
   }
   // Compose old state, left transform, and right transform into new state.
-  return [h1 + cl + dr, h2 + dl + er, h3 + el + ar, h4 + al + br, h0 + bl + cr]
+  return [ h1 + cl + dr, h2 + dl + er, h3 + el + ar, h4 + al + br, h0 + bl + cr ]
 }
 
 export function ripemd160 (bytes : Uint8Array) : Uint8Array {
@@ -477,7 +477,7 @@ export function ripemd160 (bytes : Uint8Array) : Uint8Array {
 
   // Construct final blocks (with padding and size).
   const zfill : number[] = new Array((119 - bytes.length) & 63).fill(0)
-  const pad : number[] = [0x80, ...zfill]
+  const pad : number[] = [ 0x80, ...zfill ]
   const fin : Uint8Array = Uint8Array.from([
     ...bytes.slice(bytes.length & ~63),
     ...pad,

@@ -22,6 +22,62 @@ interface ArrayChecker {
   isBigint : (x : any[]) => boolean
 }
 
+// interface TypeConfig {
+//   value  ?: any
+//   label  ?: string
+//   negate ?: boolean
+//   throws ?: boolean
+// }
+
+// function exception (
+//   value : any,
+//   label : string,
+//   negate = false
+// ) : void {
+//   const not = (negate) ? '' : 'not'
+//   throw new TypeError(`Value is ${not} ${label}: ${String(value)}`)
+// }
+
+// function isUndefined<T> (value : T, throws = false) : value is Extract<T, undefined> {
+//   const result = typeof value === 'undefined'
+//   if (throws && !result) exception(value, 'undefined')
+//   return result
+// }
+
+// function notUndefined<T> (value : T, throws = false) : value is Exclude<T, undefined> {
+//   const result = typeof value !== 'undefined'
+//   if (throws && !result) exception(value, 'undefined', true)
+//   return result
+// }
+
+// function isType <T, U> (
+//   value  : T,
+//   symbol : U,
+//   config : TypeConfig = {}
+// ) : value is Extract<T, U> {
+//   const {
+//     label  = typeof symbol,
+//     negate = false,
+//     throws = false
+//   } = config
+
+//   let result = (value as any === symbol)
+//   if (negate) result = !result
+//   if (throws && !result) {
+//     const not = (negate) ? 'not' : ''
+//     throw new TypeError(`Value is ${not} ${label}: ${String(value)}`)
+//   }
+//   return result
+// }
+
+// function notType <T, U> (
+//   value  : T,
+//   symbol : U,
+//   config : TypeConfig = {}
+// ) : value is Exclude<T, U> {
+//   return isType(value, symbol, { ...config, negate: true })
+// }
+
 const is : TypeChecker = {
     null      : x => x === null,
     undefined : x => typeof x === 'undefined',
@@ -50,7 +106,7 @@ const array : ArrayChecker = {
 }
 
 const type = (x : any) : string => {
-  for (const [k, v] of Object.entries(is)) {
+  for (const [ k, v ] of Object.entries(is)) {
     if (v(x) === true) {
       return k
     }
@@ -62,9 +118,9 @@ function isHex (str : string) : boolean {
   switch (true) {
     case (typeof str !== 'string'):
       return false
-    case (/[^0-9a-fA-F]/.test(str)):
-      return false
     case (str.length % 2 !== 0):
+      return false
+    case (/[^0-9a-fA-F]/.test(str)):
       return false
     default:
       return true
@@ -75,4 +131,6 @@ export const Check = {
   type,
   array,
   is
+  // isType,
+  // notType
 }

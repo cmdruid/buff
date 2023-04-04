@@ -11,7 +11,7 @@ export function bin2Num (
   }
   return bin.reduce((prev, next) => {
     if (next !== 1 && next !== 0) {
-      throw new Error('Invalid bit: ' + next)
+      throw new Error('Invalid bit: ' + String(next))
     }
     return prev * 2 + next
   })

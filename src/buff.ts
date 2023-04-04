@@ -1,11 +1,11 @@
 import * as C              from './convert.js'
 import { Bech32 }          from './bech32.js'
-import { BaseX  }          from './basex.js'
+import { Base58C }         from './basex.js'
 import { ripemd160 }       from './ripemd.js'
 import { Base64, B64URL }  from './base64.js'
 import { hmac256, sha256 } from './sha2.js'
 import { Bytes, Json }     from './types.js'
-import { addChecksum, checkTheSum } from './utils.js'
+import { joinArray } from './utils.js'
 
 type BufferLike = Buff | ArrayBuffer | ArrayBufferLike | Uint8Array | string | number | bigint | boolean
 type HashTypes  = 'sha256' | 'hash256' | 'ripe160' | 'hash160'
@@ -37,22 +37,16 @@ export class Buff extends Uint8Array {
     size ?: number
   ) : Buff => new Buff(C.binaryToBytes(data), size)
 
-  static b58check (data : string) : Buff {
-    const decoded = BaseX.decode(data, 'base58')
-    return new Buff(checkTheSum(decoded))
-  }
-
-  static any     = (data : any, size ?: number) : Buff => new Buff(C.buffer(data, false), size)
-  static raw     = (data : ArrayBufferLike, size ?: number) : Buff => new Buff(data, size)
-  static str     = (data : string, size ?: number) : Buff => new Buff(C.strToBytes(data), size)
-  static hex     = (data : string, size ?: number) : Buff => new Buff(C.hexToBytes(data), size)
-  static json    = (data : Json)   : Buff => new Buff(C.strToBytes(JSON.stringify(data)))
-  static data    = (data : BufferLike, size ?: number) : Buff => new Buff(C.serialize(data), size)
-  static bytes   = (data : BufferLike, size ?: number) : Buff => new Buff(C.buffer(data, true), size)
-  static base64  = (data : string) : Buff => new Buff(Base64.decode(data))
-  static b64url  = (data : string) : Buff => new Buff(B64URL.decode(data))
-  static bech32  = (data : string, ver = 0) : Buff => new Buff(Bech32.decode(data, ver))
-  static bech32m = (data : string) : Buff => new Buff(Bech32.decode(data, 1))
+  static any      = (data : any, size ?: number) : Buff => new Buff(C.buffer(data, false), size)
+  static raw      = (data : ArrayBufferLike, size ?: number) : Buff => new Buff(data, size)
+  static str      = (data : string, size ?: number) : Buff => new Buff(C.strToBytes(data), size)
+  static hex      = (data : string, size ?: number) : Buff => new Buff(C.hexToBytes(data), size)
+  static json     = (data : Json)   : Buff => new Buff(C.strToBytes(JSON.stringify(data)))
+  static bytes    = (data : BufferLike, size ?: number) : Buff => new Buff(C.buffer(data, true), size)
+  static base64   = (data : string) : Buff => new Buff(Base64.decode(data))
+  static b64url   = (data : string) : Buff => new Buff(B64URL.decode(data))
+  static bech32   = (data : string) : Buff => new Buff(Bech32.decode(data))
+  static b58check = (data : string) : Buff => new Buff(Base58C.decode(data))
 
   constructor (
     data   : BufferLike,
@@ -150,27 +144,23 @@ export class Buff extends Uint8Array {
     return new Buff(hmac256(key, this))
   }
 
-  tob58check () : string {
-    return BaseX.encode(addChecksum(this), 'base58')
-  }
-
-  toStr ()    : string     { return C.bytesToStr(this) }
-  toHex ()    : string     { return C.bytesToHex(this) }
-  toJson ()   : Json       { return JSON.parse(C.bytesToStr(this)) }
-  toBytes ()  : Uint8Array { return new Uint8Array(this) }
-  toBits   () : number[]   { return C.bytesToBinary(this) }
-  toBin    () : string     { return C.bytesToBinary(this).join('') }
-  toB64url () : string     { return B64URL.encode(this) }
-  toBase64 () : string     { return Base64.encode(this) }
-  toBech32 (hrp : string, ver = 0) : string { return Bech32.encode(this, hrp, ver) }
-  toBech32m (hrp : string) : string { return Bech32.encode(this, hrp, 1) }
+  toStr      () : string     { return C.bytesToStr(this)             }
+  toHex      () : string     { return C.bytesToHex(this)             }
+  toJson     () : Json       { return JSON.parse(C.bytesToStr(this)) }
+  toBytes    () : Uint8Array { return new Uint8Array(this)           }
+  toBits     () : number[]   { return C.bytesToBinary(this)          }
+  toBin      () : string     { return C.bytesToBinary(this).join('') }
+  tob58check () : string     { return Base58C.encode(this)           }
+  toB64url   () : string     { return B64URL.encode(this)            }
+  toBase64   () : string     { return Base64.encode(this)            }
+  toBech32 (hrp : string, version = 0) : string { return Bech32.encode(this, hrp, version) }
 
   prepend (data : BufferLike) : Buff {
-    return Buff.join([Buff.bytes(data), this])
+    return Buff.join([ Buff.bytes(data), this ])
   }
 
   append (data : BufferLike) : Buff {
-    return Buff.join([this, Buff.bytes(data)])
+    return Buff.join([ this, Buff.bytes(data) ])
   }
 
   slice (start ?: number, end ?: number) : Buff {
@@ -187,7 +177,7 @@ export class Buff extends Uint8Array {
 
   prefixSize (endian ?: Endian) : Buff {
     const size = Buff.varInt(this.length, endian)
-    return Buff.join([size, this])
+    return Buff.join([ size, this ])
   }
 
   static from (data : Uint8Array | number[]) : Buff {
@@ -199,16 +189,8 @@ export class Buff extends Uint8Array {
   }
 
   static join (arr : BufferLike[]) : Buff {
-    let i, idx = 0
     const data = arr.map(e => Buff.bytes(e))
-    const size = data.reduce((prev, curr) => prev + curr.length, 0)
-    const buff = new Buff(0, size)
-    for (const bytes of data) {
-      for (i = 0; i < bytes.length; idx++, i++) {
-        buff[idx] = bytes[i]
-      }
-    }
-    return buff
+    return new Buff(joinArray(data))
   }
 
   static varInt (num : number, endian ?: Endian) : Buff {
@@ -273,17 +255,17 @@ export class Stream {
     return chunk
   }
 
-  readSize () : number {
-    const num = this.read(1).toNum()
+  readSize (endian ?: Endian) : number {
+    const num = this.read(1).num
     switch (true) {
       case (num >= 0 && num < 0xFD):
         return num
       case (num === 0xFD):
-        return this.read(2).toNum()
+        return this.read(2).toNum(endian)
       case (num === 0xFE):
-        return this.read(4).toNum()
+        return this.read(4).toNum(endian)
       case (num === 0xFF):
-        return this.read(8).toNum()
+        return this.read(8).toNum(endian)
       default:
         throw new Error(`Varint is out of range: ${num}`)
     }

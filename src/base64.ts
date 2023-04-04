@@ -1,110 +1,77 @@
-/**
- * This file implements base64 encoding and decoding.
- * Encoding is done by the function base64Encode(), decoding
- * by base64Decode(). The naming mimics closely the corresponding
- * library functions found in PHP. However, this implementation allows
- * for a more flexible use.
- *
- * This implementation follows RFC 3548 (http://www.faqs.org/rfcs/rfc3548.html),
- * so the copyright formulated therein applies.
- *
- * Dr.Heller Information Management, 2005 (http://www.hellerim.de).
- *
- * Code refactor performed by Christopher Scott.
- */
-
-const BASE64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-const B64URL_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
+const BASE64_MAP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+const B64URL_MAP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
 
 const ec = new TextEncoder()
 
-function b64encode (input : string | Uint8Array, url = false) : string {
-  const buffer : number[] = []
-  const encoding = (url) ? B64URL_ALPHABET : BASE64_ALPHABET
-
+function b64encode (input : string | Uint8Array, urlSafe = false) : string {
+  // Normalize the input to the encoder.
   if (typeof input === 'string') input = ec.encode(input)
 
-  const n = 1     // length of read buffer
-  let out = ''    // output string
-  let c = 0       // holds character code (maybe 16 bit or 8 bit)
-  let j = 1       // sextett counter
-  let l = 0       // work buffer
-  let s = 0       // holds sextett
+  // Determine which map to use based on the input string.
+  const map = urlSafe ? B64URL_MAP : BASE64_MAP
 
-  for (let i = 0; i < input.length; i++) {  // read input
-    c = input[i] // fill read buffer
-    for (let k = n - 1; k >= 0; k--) {
-      buffer[k] = c & 0xff
-      c >>= 8
-    }
-    for (let m = 0; m < n; m++) {           // run through read buffer.
-      l = ((l << 8) & 0xff00) | buffer[m]   // shift remaining bits one byte to the left and append next byte.
-      s = (0x3f << (2 * j)) & l             // extract sextett from buffer.
-      l -= s                                // remove those bits from buffer.
-      out += encoding.charAt(s >> (2 * j))  // convert leftmost sextett and append it to output.
-      j++
-      if (j === 4) {                        // another sextett is complete.
-        out += encoding.charAt(l & 0x3f)    // convert and append it.
-        j = 1
-      }
+  let output = ''
+  let bits = 0
+  let buffer = 0
+
+  // Encode the input array.
+  for (let i = 0; i < input.length; i++) {
+    buffer = (buffer << 8) | input[i]
+    bits += 8
+    while (bits >= 6) {
+      bits -= 6
+      output += map[(buffer >> bits) & 0x3f]
     }
   }
-  switch (j) {                              // handle left-over sextetts.
-    case 2:
-      s = 0x3f & (16 * l)                   // extract sextett from buffer.
-      out += encoding.charAt(s)             // convert leftmost sextett and append it to output.
-      out += '=='
-      break
-    case 3:
-      s = 0x3f & (4 * l)                    // extract sextett from buffer.
-      out += encoding.charAt(s)             // convert leftmost sextett and append it to output.
-      out += '='
-      break
-    default:
-      break
+
+  // Add padding characters if necessary.
+  if (bits > 0) {
+    buffer <<= 6 - bits
+    output += map[buffer & 0x3f]
+    while (bits < 6) {
+      output += urlSafe ? '' : '='
+      bits += 2
+    }
   }
-  return out
+
+  return output
 }
 
-function b64decode (input : string, url = false) : Uint8Array {
-  const out = []
-  const map : Record<string, number> = {}
-  const encoding = (url) ? B64URL_ALPHABET : BASE64_ALPHABET
+export function b64decode (input : string, urlSafe = false) : Uint8Array {
+  // Determine which map to use based on the input string.
+  const map = (urlSafe || input.includes('-') || input.includes('_'))
+    ? B64URL_MAP.split('')
+    : BASE64_MAP.split('')
 
-  for (let p = 0; p < encoding.length; p++) {
-    map[encoding.charAt(p)] = p
-  }
+  // Remove any padding characters from the input string.
+  input = input.replace(/=+$/, '')
 
-  let l = 0               // work area
-  let i = 0               // index into input
-  let j = 0               // sextett counter
-  let c = 0               // input buffer
-  let end = input.length  // one position past the last character to be processed
+  // Convert the input string to an array of characters.
+  const chars = input.split('')
 
-  // search for trailing '=''s.
-  for (let p = 0; p < 2; p++) {
-    if (input.charAt(end - 1) === '=') {
-      end--
-    } else {
-      break
+  // Initialize variables for decoding.
+  let   bits  = 0
+  let   value = 0
+  const bytes = []
+
+  // Decode the input string.
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i]
+    const index = map.indexOf(c)
+    if (index === -1) {
+      throw new Error('Invalid character: ' + c)
+    }
+    bits += 6
+    value <<= 6
+    value |= index
+    if (bits >= 8) {
+      bits -= 8
+      bytes.push((value >>> bits) & 0xff)
     }
   }
 
-  // convert.
-  for (i = 0; i < end; i++) {
-    l <<= 6                          // clear space for next sextett
-    c = map[input.charAt(i)]
-    l |= (c & 0x3f)                  // append it
-    if (j === 0) {
-      j++
-      continue                       // work area contains incomplete byte only
-    }
-    out.push(l >> (2 * (3 - j)))     // append byte to array
-    l &= ~(0xff << (2 * (3 - j)))
-    j = ++j % 4                      // increment sextett counter cyclically
-  }
-
-  return Uint8Array.of(...out)
+  // Return the decoded bytes as a Uint8Array.
+  return new Uint8Array(bytes)
 }
 
 export const Base64 = {
