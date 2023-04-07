@@ -37,16 +37,16 @@ export class Buff extends Uint8Array {
     size ?: number
   ) : Buff => new Buff(C.binaryToBytes(data), size)
 
-  static any      = (data : any, size ?: number) : Buff => new Buff(C.buffer(data, false), size)
-  static raw      = (data : ArrayBufferLike, size ?: number) : Buff => new Buff(data, size)
-  static str      = (data : string, size ?: number) : Buff => new Buff(C.strToBytes(data), size)
-  static hex      = (data : string, size ?: number) : Buff => new Buff(C.hexToBytes(data), size)
-  static json     = (data : Json)   : Buff => new Buff(C.strToBytes(JSON.stringify(data)))
-  static bytes    = (data : BufferLike, size ?: number) : Buff => new Buff(C.buffer(data, true), size)
-  static base64   = (data : string) : Buff => new Buff(Base64.decode(data))
-  static b64url   = (data : string) : Buff => new Buff(B64URL.decode(data))
-  static bech32   = (data : string) : Buff => new Buff(Bech32.decode(data))
-  static b58check = (data : string) : Buff => new Buff(Base58C.decode(data))
+  static any    = (data : any, size ?: number) : Buff => new Buff(C.buffer(data, false), size)
+  static raw    = (data : ArrayBufferLike, size ?: number) : Buff => new Buff(data, size)
+  static str    = (data : string, size ?: number) : Buff => new Buff(C.strToBytes(data), size)
+  static hex    = (data : string, size ?: number) : Buff => new Buff(C.hexToBytes(data), size)
+  static json   = (data : Json)   : Buff => new Buff(C.strToBytes(JSON.stringify(data)))
+  static bytes  = (data : BufferLike, size ?: number) : Buff => new Buff(C.buffer(data, true), size)
+  static base64 = (data : string) : Buff => new Buff(Base64.decode(data))
+  static b64url = (data : string) : Buff => new Buff(B64URL.decode(data))
+  static bech32 = (data : string) : Buff => new Buff(Bech32.decode(data))
+  static b58chk = (data : string) : Buff => new Buff(Base58C.decode(data))
 
   constructor (
     data   : BufferLike,
@@ -60,6 +60,10 @@ export class Buff extends Uint8Array {
     }
     super(data)
     return this
+  }
+
+  get arr () : number[] {
+    return [ ...this ]
   }
 
   get num () : number {
@@ -88,6 +92,10 @@ export class Buff extends Uint8Array {
 
   get bin () : string {
     return this.toBin()
+  }
+
+  get b58chk () : string {
+    return this.tob58check()
   }
 
   get base64 () : string {
@@ -144,16 +152,16 @@ export class Buff extends Uint8Array {
     return new Buff(hmac256(key, this))
   }
 
-  toStr      () : string     { return C.bytesToStr(this)             }
-  toHex      () : string     { return C.bytesToHex(this)             }
-  toJson     () : Json       { return JSON.parse(C.bytesToStr(this)) }
-  toBytes    () : Uint8Array { return new Uint8Array(this)           }
-  toBits     () : number[]   { return C.bytesToBinary(this)          }
-  toBin      () : string     { return C.bytesToBinary(this).join('') }
-  tob58check () : string     { return Base58C.encode(this)           }
-  toB64url   () : string     { return B64URL.encode(this)            }
-  toBase64   () : string     { return Base64.encode(this)            }
+  toStr    () : string     { return C.bytesToStr(this)             }
+  toHex    () : string     { return C.bytesToHex(this)             }
+  toJson   () : Json       { return JSON.parse(C.bytesToStr(this)) }
+  toBytes  () : Uint8Array { return new Uint8Array(this)           }
+  toBits   () : number[]   { return C.bytesToBinary(this)          }
+  toBin    () : string     { return C.bytesToBinary(this).join('') }
+  toB64url () : string     { return B64URL.encode(this)            }
+  toBase64 () : string     { return Base64.encode(this)            }
   toBech32 (hrp : string, version = 0) : string { return Bech32.encode(this, hrp, version) }
+  tob58check () : string   { return Base58C.encode(this)           }
 
   prepend (data : BufferLike) : Buff {
     return Buff.join([ Buff.bytes(data), this ])

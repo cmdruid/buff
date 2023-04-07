@@ -1,140 +1,184 @@
 # Buff Utils
-Cross-platform utility library for working with array buffers and moving between formats.
 
-## Installation
+The swiss-army-knife of byte manipulation.
+
+Features:
+ * Move between all data formats with ease!
+ * Encode / decode between Base58, Base64, Bech32 and more.
+ * Main buffer object recognized naturally as Uint8Array.
+ * Includes sync versions of sha256, ripemd160, hash160 and hash256.
+ * Prepend, append, split and join multiple arrays.
+ * Read and prefix varints.
+ * Convert byte blobs into consumable streams.
+ * Supports endianess for all the things!
+
+## Import
+
+Example import into a browser-based project:
+
 ```html
-<script src="https://unpkg.com/@cmdcode/buff-utils">
+<script src="https://unpkg.com/@cmdcode/buff-utils"></script>
+<script> const { Buff } = window.buffUtils </script>
 ```
+
+Example import into a commonjs project:
+
 ```bash
 yarn add @cmdcode/buff-utils | npm install @cmdcode/buff-utils
 ```
+```ts
+const { Buff } = require('@cmdcode/buff-utils')
+```
+
+Example import into an ES module project:
+
+```bash
+yarn add @cmdcode/buff-utils | npm install @cmdcode/buff-utils
+```
+```ts
+import { Buff } from '@cmdcode/buff-utils'
+```
 
 ## How to Use
+
+The `Buff` class is an extention of the base Uint8Array class. It provides the same default functionality of a Uint8Array, and can be used as a drop-in replacement for Uint8Array. Typescript will treat Buff as a BufferLike and Uint8Array object.
+
+With Buff, you get access to an extensive API for converting between formats, and performing byte manipulation.
+
 ```ts
-/**
- * Buff class extends Uint8Array object
- * and provides simple format conversion. 
- * */
 import { Buff } from '@cmdcode/buff-utils'
 
-Buff
-  .str(strData)    => Buff<Uint8Array>
-  .hex(hexData)    => Buff<Uint8Array>
-  .num(numData)    => Buff<Uint8Array>
-  .big(bigData)    => Buff<Uint8Array>
-  .raw(buffer)     => Buff<Uint8Array>
-  .json(jsonData)  => Buff<Uint8Array>
-  .bech32(strData) => Buff<Uint8Array>
-  .base58(strData) => Buff<Uint8Array>
-  .base64(strData) => Buff<Uint8Array>
-  .b64url(strData) => Buff<Uint8Array>
+type BufferLike = Buff | ArrayBuffer | ArrayBufferLike | Uint8Array | string | number | bigint | boolean
 
-new Buff(data: ArrayBufferLike, size: number)
-  .toArr()    => number[]
-  .toStr()    => string
-  .toHex()    => hexstring
-  .toNum()    => number
-  .toBig()    => bigint
-  .toBytes()  => Uint8Array
-  .toJson()   => object
-  .toBech32() => b32string
-  .toBase58() => b58string
-  .toBase64() => b64string
-  .toB64url() => b64string
+Buff = {
+  // Convert from any format into a Buff object.
+  .any    = (data : any, size ?: number)               => Buff,
+  .raw    = (data : ArrayBufferLike, size ?: number)   => Buff,
+  .str    = (data : string, size ?: number)            => Buff,
+  .hex    = (data : string, size ?: number)            => Buff,
+  .bin    = (data : string | number[], size ?: number) => Buff,
+  .num    = (data : number, size ?: number)            => Buff,
+  .big    = (data : bigint, size ?: number)            => Buff,
+  .bytes  = (data : BufferLike, size ?: number)        => Buff,
+  .json   = (data : Json)   => Buff,
+  .bech32 = (data : string) => Buff,
+  .b58chk = (data : string) => Buff,
+  .base64 = (data : string) => Buff,
+  .b64url = (data : string) => Buff
+}
 
-/* There's also a number of helpful utiltiy methods. */
+const buff = new Buff(data, size)
 
-Buff.
-  // Same as TextEncoder.
-  encode(string)     => Uint8Array
-  // Same as TextEncoder.  
-  decode(Uint8Array) => string
-  // Normalizes typed arrays and hex strings.
-  normalize(hexstring | Uint8Array)
-  // Serializes json objects and strings.
-  serialize(string  | Uint8Array | Json) => Uint8Array
-  // Safely revives json objects or strings.
-  revitalize(string | Uint8Array) => Json | string
+buff
+  // Convert a Buff object back into any format.
+  .arr     => number[]    // Convert to a number array.
+  .raw     => Uint8Array  // Convert to a pure Uint8Array.
+  .str     => string      // Convert to a UTF8 string.
+  .hex     => string      // Convert to a hex string.
+  .num     => number      // Convert to a Number.
+  .big     => bigint      // Convert to a BigInt.
+  .bits    => number[]    // Convert to a binary array.
+  .bin     => string      // Convert to a binary string.
+  .b58chk  => string      // Convert to base58 with checksum.
+  .base64  => string      // Convert to base64 string.
+  .b64url  => string      // Convert to base64url string.
+  .digest  => Buff        // Convert to a sha256 digest.
+  .id      => string      // Convert to a digest (hex string).
+  .stream  => Stream      // Convert to a Stream object.
 
-// Some of this utility has been separated into smaller 
-// libraries for convenience and code readability
-import { Base64, Hex, Txt } from '@cmdcode/buff-utils'
+buff
+  // There are a few export methods that allow extra params.
+  toNum    : (endian : Endian = 'le')          => number
+  toBig    : (endian : Endian = 'le')          => bigint
+  toBech32 : (hrp : string, version ?: number) => string
+  toHmac   : (key : string | Uint8Array)       => Buff
+  toHash   : (type : HashTypes = 'sha256')     => Buff
+
+// Some additional types are used with the Buff library.
+type Literal    = string | number | boolean | null
+type Json       = Literal | { [key : string] : Json } | Json[]
+type Bytes      = string | number | bigint | Uint8Array
+type HashTypes  = 'sha256' | 'hash256' | 'ripe160' | 'hash160'
+type Endian     = 'le' | 'be'
 ```
 
+In addition to format conversion, you can perform many other convenient tasks.
+
 ```ts
-/** 
- * In addition to the standard Uint8Array API,
- * you can also perform other convenient tasks.
- * */
+Buff = {
+  // Same as Uint8Array.from(), but returns a Buff object.
+  from (data : Uint8Array | number[]) => Buff
+  // Same as Uint8Array.of(), but returns a Buff object.
+  of (...data : number[]) => Buff,
+  // Joins multiple arrays and data types together.
+  join   : (array : BufferLike[]) => Buff,
+  // Standard UTF-8 string-to-bytes encoding.
+  encode : (str : string) => Uint8Array,
+  // Standard UTF-8 bytes-to-string decoding.
+  decode : (bytes : Uint8Array) => string,
+  // Converts a number into a 'varint' for byte streams.
+  varInt : (num : number, endian ?: Endian) => Buff
+}
 
-Buff
-  .readVarint(num : number)   => Uint8Array // Reads the first byte as a varint.
-  .join(arr: Uint8Array[])    => Uint8Array // Returns a concatenated byte array.
-  .random (size : number)     => Uint8Array // Returns an array with random bytes.
+const buff = new Buff(data, size)
 
-new Bytes(data: Uint8Array)
-  .prepend(data: Uint8Array)  => Uint8Array // Returns prepended byte array.
-  .append(data: Uint8Array)   => Uint8Array // Returns appended byte array.
-  .prependVarint(num: number) => Uint8Array // Returns appended byte array.
-  .write(
-    bytes : Uint8Array, 
-    offset ?: number
-  ) => void // Wraps Uint8Array.set().
+buff
+  // Same as Uint8Array.reverse(), but returns a Buff object.
+  .reverse () => Buff
+  // Same as Uint8Array.slice(), but returns a Buff object.
+  .slice (start ?: number, end ?: number) => Buff
+  // Prepend data to your buffer object.
+  .prepend (data : BufferLike) => Buff
+  // Append data to your ubber object
+  .append (data : BufferLike) => Buff
+  // Same as Uint8Array.set().
+  .write (data : Uint8Array, offset ?: number) => void
+  // Encode the size of your buffer as a varint and prepend it.
+  .prefixSize (endian ?: Endian) => Buff
+  // Return a buffer object with random data (uses webcrypto).
+  .random (size : number) => Buff
 ```
 
+The `Stream` tool will take a blob of data and allow you to consume it byte-per-byte.
+
 ```ts
-/**
- * Stream class reads from a Uint8Array,
- * and consumes the data on each read.
- * */
 import { Stream } from '@cmdcode/buff-utils'
 
-new Stream(data: ArrayBufferLike)
-  .peek(len: number) => bytes // Reads the array, does not consume.
-  .read(len: number) => bytes // Reads the array, shrinks the array.
-  .varint() => number // Reads the next byte as varint, returns number.
+// Convert data into a stream object.
+const stream = new Stream(data)
+
+// You can convert a buff object into a stream.
+const stream = new Buff(data).stream
+
+stream
+  // Reads x number of bytes, does not consume the stream.
+  .peek(size: number) => Buff
+  // Reads x number of bytes, consumes the stream.
+  .read(size: number) => bytes
+  // Reads the next bytes(s) as a varint, returns the number value.
+  .readSize (endian ?: Endian) => number
 ```
+
+A number of utilities are available as stand-alone packages for import.
 
 ```ts
-/**
- * Type class is an extention of 'typeof'.
- * It will attempt to return a proper string
- * for the variable type.
- */
-import { Type } from '@cmdcode/buff-utils'
-
-Type.of(data: any) => string [
-  'undefined'
-  'infinity'
-  'null'
-  'hex'
-  'string'
-  'bigint'
-  'number'
-  'array'
-  'uint8'
-  'uint16'
-  'uint32'
-  'buffer'
-  'object'
-  'unknown'
-]
+import { Bech32, Base58C, Base64, B64URL, Hex, Txt } from '@cmdcode/buff-utils'
 ```
-## Issues
+
+## Bugs / Issues
+
 Please feel free to post any questions or bug reports on the issues page!
 
-This library is currently in heavy development. Watch out for dragons!
-
 ## Testing
-This project uses tape for writing unit tests. I have a script that scans the API of each library and tries to import tests dynamically. The benefit of this is I can run the same tests on any bundle of the source code, so all bundle targets are tested (except cjs, gotta figure out one out).
 
-There's also a test/index.html that will launch testing for the browser bundle, and test within the browser. Pretty neat!
+This project uses tape for writing unit tests.
 
 ## Development
+
 This project uses the following development tools:
 
   - ESLint     : For linting and catching linter errors.
-  - Nyc        : For test code coverage and reports.
+  - NYC        : For test code coverage and reports.
   - Rollup     : Bundling/optimizing code for different platforms.
   - Tape       : A simple, easy to use testing library. 
   - Typescript : Type-checking and generating declaration files.
@@ -145,4 +189,9 @@ yarn install | npm install
 ```
 
 ## Contributions
+
 All contributions are welcome!
+
+## License
+
+Use this code however you like! No warranty!
