@@ -95,7 +95,7 @@ export class Buff extends Uint8Array {
   }
 
   get b58chk () : string {
-    return this.tob58check()
+    return this.tob58chk()
   }
 
   get base64 () : string {
@@ -158,10 +158,10 @@ export class Buff extends Uint8Array {
   toBytes  () : Uint8Array { return new Uint8Array(this)           }
   toBits   () : number[]   { return C.bytesToBinary(this)          }
   toBin    () : string     { return C.bytesToBinary(this).join('') }
+  tob58chk () : string     { return Base58C.encode(this)           }
   toB64url () : string     { return B64URL.encode(this)            }
   toBase64 () : string     { return Base64.encode(this)            }
   toBech32 (hrp : string, version = 0) : string { return Bech32.encode(this, hrp, version) }
-  tob58check () : string   { return Base58C.encode(this)           }
 
   prepend (data : BufferLike) : Buff {
     return Buff.join([ Buff.bytes(data), this ])
