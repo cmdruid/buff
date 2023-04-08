@@ -44,7 +44,7 @@ const nodeConfig = {
       minifyInternalExports: false
     },
   ],
-  plugins: [ typescript(tsConfig), nodeResolve(), commonjs() ],
+  plugins: [ typescript(tsConfig), nodeResolve({ browser: true }), commonjs() ],
   strictDeprecations: true,
   treeshake
 }

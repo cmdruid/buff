@@ -5,13 +5,11 @@ import { ripemd160 }       from './ripemd.js'
 import { Base64, B64URL }  from './base64.js'
 import { hmac256, sha256 } from './sha2.js'
 import { Bytes, Json }     from './types.js'
-import { joinArray } from './utils.js'
+import { getCryptoLib, joinArray } from './utils.js'
 
 type BufferLike = Buff | ArrayBuffer | ArrayBufferLike | Uint8Array | string | number | bigint | boolean
 type HashTypes  = 'sha256' | 'hash256' | 'ripe160' | 'hash160'
 type Endian     = 'le' | 'be'
-
-const crypto = globalThis.crypto
 
 export class Buff extends Uint8Array {
   static num = (
@@ -219,7 +217,8 @@ export class Buff extends Uint8Array {
   static decode = C.bytesToStr
 
   static random (size : number = 32) : Buff {
-    return new Buff(crypto.getRandomValues(new Uint8Array(size)))
+    const lib = getCryptoLib()
+    return new Buff(lib.getRandomValues(new Uint8Array(size)))
   }
 
   static normalize (bytes : Bytes, size ?: number) : Buff {
