@@ -1,7 +1,7 @@
 import { Test }   from 'tape'
 import { Buff }   from '../../../src/index.js'
 import { sha256 } from '../../../src/index.js'
-import { webcrypto as crypto } from '../../../src/crypto/index.js'
+import { webcrypto as crypto } from '@cmdcode/webcrypto'
 
 export default async function sha2Test(t : Test) : Promise<void> {
 

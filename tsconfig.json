@@ -47,6 +47,6 @@
     "rollup.config.ts"
   ],
   "include": [
-    "src/**/*.ts",
+    "src/**/*.ts", "test/prng.ts",
   ]
 }

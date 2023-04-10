@@ -2,7 +2,7 @@
 import typescript  from '@rollup/plugin-typescript'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs    from '@rollup/plugin-commonjs'
-import { terser }  from 'rollup-plugin-terser'
+import terser      from '@rollup/plugin-terser'
 
 const treeshake = {
 	moduleSideEffects: false,
@@ -11,7 +11,11 @@ const treeshake = {
 }
 
 const onwarn = warning => {
-	// eslint-disable-next-line no-console
+	if (
+    warning.code === 'MISSING_NODE_BUILTINS' &&
+    warning.ids.length === 1  &&
+    warning.ids[0] === 'crypto'
+  ) { return }
 	console.error(
 		'Building Rollup produced warnings that need to be resolved. ' +
 			'Please keep in mind that the browser build may never have external dependencies!'
@@ -59,35 +63,14 @@ const browserConfig = {
       name: 'buffUtils',
       plugins: [terser()],
       sourcemap: true,
+      globals: {
+        crypto  : 'crypto'
+      }
     },
   ],
-  plugins: [ typescript(tsConfig), nodeResolve(), commonjs() ],
+  plugins: [ typescript(tsConfig), nodeResolve({ browser: true }), commonjs() ],
   strictDeprecations: true,
   treeshake
 }
-
-// const testConfig = {
-//   input: 'test/index.test.js',
-//   onwarn,
-//   output: [
-//     {
-//       file: 'test/browser.test.js',
-//       format: 'iife',
-//       name: 'test',
-//       sourcemap: false,
-//       globals: {
-//         tape: 'tape'
-//       }
-//     }
-//   ],
-//   external: ['tape'],
-//   plugins: [
-//     typescript({ ...tsConfig, sourceMap: false }), 
-//     nodeResolve(), 
-//     commonjs()
-//   ],
-//   strictDeprecations: true,
-//   treeshake
-// }
 
 export default [ nodeConfig, browserConfig ];

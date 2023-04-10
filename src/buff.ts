@@ -1,3 +1,4 @@
+import { webcrypto as crypto } from '@cmdcode/webcrypto'
 import * as C              from './convert.js'
 import { Bech32 }          from './bech32.js'
 import { Base58C }         from './basex.js'
@@ -6,7 +7,6 @@ import { Base64, B64URL }  from './base64.js'
 import { hmac256, sha256 } from './sha2.js'
 import { Bytes, Json }     from './types.js'
 import { joinArray }       from './utils.js'
-import { webcrypto as crypto } from './crypto/index.js'
 
 type BufferLike = Buff | ArrayBuffer | ArrayBufferLike | Uint8Array | string | number | bigint | boolean
 type HashTypes  = 'sha256' | 'hash256' | 'ripe160' | 'hash160'
