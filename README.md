@@ -91,8 +91,8 @@ buff
   toNum    : (endian : Endian = 'le')          => number
   toBig    : (endian : Endian = 'le')          => bigint
   toBech32 : (hrp : string, version ?: number) => string
-  toHmac   : (key : string | Uint8Array)       => Buff
-  toHash   : (type : HashTypes = 'sha256')     => Buff
+  toHmac   : (key : Bytes, type : HmacTypes)   => Buff
+  toHash   : (type : HashTypes)                => Buff
 
 // Some additional types are used with the Buff library.
 type Literal    = string | number | boolean | null
@@ -162,7 +162,7 @@ stream
 A number of utilities are available as stand-alone packages for import.
 
 ```ts
-import { Bech32, Base58C, Base64, B64URL, Hex, Txt } from '@cmdcode/buff-utils'
+import { Bech32, Base58C, Base64, B64URL, Hash, Hex, Txt } from '@cmdcode/buff-utils'
 ```
 
 ## Bugs / Issues
