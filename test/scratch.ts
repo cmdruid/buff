@@ -1,5 +1,5 @@
-import { Buff } from '../src/index.js'
+import { Hash } from '../src/index.js'
 
-const rand = Buff.random()
+const res = Hash.sha256('deadbeef')
 
-console.log(rand)
+console.log(res)

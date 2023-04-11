@@ -204,3 +204,17 @@ export function revive<T = Object> (data : any) : string | T {
   }
   return data
 }
+
+export const Hex = {
+  encode    : (x : Uint8Array) => bytesToHex(x),
+  decode    : (x : string)     => hexToBytes(x),
+  normalize : (x : Bytes)      => buffer(x),
+  serialize : (x : Bytes)      => bytesToHex(buffer(x))
+}
+
+export const Txt = {
+  encode    : (x : Uint8Array) => bytesToStr(x),
+  decode    : (x : string)     => strToBytes(x),
+  serialzie : (x : any)        => serialize(x),
+  revive    : (x : string)     => revive(x)
+}

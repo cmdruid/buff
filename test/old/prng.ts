@@ -1,6 +1,6 @@
-import { joinArray } from '../src/utils.js'
-import { sha256 }    from '../src/sha2.js'
-import { numToBytes, bytesToBig, bigToBytes } from '../src/convert.js'
+import { joinArray } from '../../src/utils.js'
+import { sha256 }    from '../../src/hash.js'
+import { numToBytes, bytesToBig, bigToBytes } from '../../src/convert.js'
 
 export class PRNG {
   private x : bigint

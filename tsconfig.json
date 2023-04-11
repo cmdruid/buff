@@ -47,6 +47,6 @@
     "rollup.config.ts"
   ],
   "include": [
-    "src/**/*.ts", "test/prng.ts",
+    "src/**/*.ts", "test/old/prng.ts", "test/old/ripemd.ts",
   ]
 }

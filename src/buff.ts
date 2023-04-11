@@ -1,15 +1,15 @@
-import { webcrypto as crypto } from '@cmdcode/webcrypto'
-import * as C              from './convert.js'
-import { Bech32 }          from './bech32.js'
-import { Base58C }         from './basex.js'
-import { ripemd160 }       from './ripemd.js'
-import { Base64, B64URL }  from './base64.js'
-import { hmac256, sha256 } from './sha2.js'
-import { Bytes, Json }     from './types.js'
-import { joinArray }       from './utils.js'
+import { randomBytes }    from '@noble/hashes/utils'
+import * as C             from './convert.js'
+import { Bech32 }         from './bech32.js'
+import { Base58C }        from './base58.js'
+import { Base64, B64URL } from './base64.js'
+import { Bytes, Json }    from './types.js'
+import { joinArray }      from './utils.js'
+import { Hash }           from './hash.js'
 
 type BufferLike = Buff | ArrayBuffer | ArrayBufferLike | Uint8Array | string | number | bigint | boolean
-type HashTypes  = 'sha256' | 'hash256' | 'ripe160' | 'hash160'
+type HashTypes  = 'sha256'  | 'hash256' | 'ripe160' | 'hash160'
+type HmacTypes  = 'hmac256' | 'hmac512'
 type Endian     = 'le' | 'be'
 
 export class Buff extends Uint8Array {
@@ -132,23 +132,27 @@ export class Buff extends Uint8Array {
   toHash (type : HashTypes = 'sha256') : Buff {
     switch (type) {
       case 'sha256':
-        return new Buff(sha256(this))
+        return new Buff(Hash.sha256(this))
       case 'hash256':
-        return new Buff(sha256(sha256(this)))
+        return new Buff(Hash.hash256(this))
       case 'ripe160':
-        return new Buff(ripemd160(this))
+        return new Buff(Hash.ripe160(this))
       case 'hash160':
-        return new Buff(ripemd160(sha256(this)))
+        return new Buff(Hash.hash160(this))
       default:
         throw new Error('Unrecognized format:' + String(type))
     }
   }
 
-  toHmac (key : string | Uint8Array) : Buff {
-    if (typeof key === 'string') {
-      key = C.strToBytes(key)
+  toHmac (key : Bytes, type : HmacTypes = 'hmac256') : Buff {
+    switch (type) {
+      case 'hmac256':
+        return new Buff(Hash.hmac256(key, this))
+      case 'hmac512':
+        return new Buff(Hash.hmac512(key, this))
+       default:
+        throw new Error('Unrecognized format:' + String(type))
     }
-    return new Buff(hmac256(key, this))
   }
 
   toStr    () : string     { return C.bytesToStr(this)             }
@@ -218,7 +222,7 @@ export class Buff extends Uint8Array {
   static decode = C.bytesToStr
 
   static random (size : number = 32) : Buff {
-    return new Buff(crypto.getRandomValues(new Uint8Array(size)))
+    return new Buff(randomBytes(size), size)
   }
 
   static normalize (bytes : Bytes, size ?: number) : Buff {
@@ -277,18 +281,4 @@ export class Stream {
         throw new Error(`Varint is out of range: ${num}`)
     }
   }
-}
-
-export const Hex = {
-  encode    : (x : Uint8Array) => Buff.raw(x).hex,
-  decode    : (x : string)     => Buff.hex(x).raw,
-  normalize : (x : Bytes)      => Buff.bytes(x).raw,
-  serialize : (x : Bytes)      => Buff.bytes(x).hex
-}
-
-export const Txt = {
-  encode    : (x : Uint8Array) => Buff.raw(x).str,
-  decode    : (x : string)     => Buff.str(x).raw,
-  serialzie : (x : any)        => Buff.serialize(x).raw,
-  revive    : (x : string)     => Buff.revive(x)
 }

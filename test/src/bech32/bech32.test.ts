@@ -1,8 +1,9 @@
 import { Test }     from 'tape'
-import { Buff }     from '../../../src/index.js'
+import { Hex }      from '../../../src/convert.js'
 import { Bech32 }   from '../../../src/bech32.js'
 import pass_vectors from './pass.vectors.json' assert { type: 'json' }
 import fail_vectors from './fail.vectors.json' assert { type: 'json' }
+import { randomBytes } from '@noble/hashes/utils'
 
 // ["bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx", "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6"],
 
@@ -13,7 +14,7 @@ export default function bech32Test(t : Test) {
     t.plan(pass_vectors.length * 2)
 
     for (const [ encode_target, decode_target ] of pass_vectors) {
-      const bytes = Buff.hex(decode_target).raw
+      const bytes = Hex.decode(decode_target)
       let [ hrp ] = encode_target.split('1', 1)
       let version = 0
       
@@ -34,7 +35,7 @@ export default function bech32Test(t : Test) {
       }
       try {
         const decoded = Bech32.decode(encode_target)
-        t.equal(Buff.raw(decoded).hex, decode_target.toLowerCase(), 'Decoding should match target.')
+        t.equal(Hex.encode(decoded), decode_target.toLowerCase(), 'Decoding should match target.')
       } catch(err) {
         t.fail(err.message)
       }
@@ -62,11 +63,11 @@ export default function bech32Test(t : Test) {
     const results :string[][] = []
 
     for (let i = 0; i < rounds; i++) {
-      const random  = Buff.random()
+      const random  = randomBytes(32)
       const version = Math.floor(Math.random())
       const encoded = Bech32.encode(random, 'bc', version)
       const decoded = Bech32.decode(encoded)
-      results.push([ Buff.raw(decoded).hex, random.hex ])
+      results.push([ Hex.encode(decoded), Hex.encode(random) ])
     }
 
     const failures = results.filter(([ t, e ]) => t !== e)

@@ -1,7 +1,8 @@
-import { Test }     from 'tape'
-import { Base58, Base58C }  from '../../../src/basex.js'
-import { Buff }     from '../../../src/buff.js'
-import test_vectors from './basex.vector.json' assert { type: 'json' }
+import { Test }  from 'tape'
+import { Hex } from '../../../src/convert.js'
+import { Base58, Base58C } from '../../../src/base58.js'
+import test_vectors    from './basex.vector.json' assert { type: 'json' }
+import { randomBytes } from '@noble/hashes/utils'
 
 export default function base58Test(t : Test) {
   t.test('Base58 test vectors', t => {
@@ -9,13 +10,13 @@ export default function base58Test(t : Test) {
     t.plan(vectors.length * 2)
     for (const [ dec, enc ] of vectors) {
       try {
-        const encoded = Base58.encode(Buff.hex(dec))
+        const encoded = Base58.encode(Hex.decode(dec))
         t.equal(encoded, enc, 'Encodings should match.')
       } catch(err) {
         t.fail(err.message)
       }
       try {
-        const decoded = Buff.raw(Base58.decode(enc)).hex
+        const decoded = Hex.encode(Base58.decode(enc))
         t.equal(decoded, dec, 'Decodings should match.')
       } catch(err) {
         t.fail(err.message)
@@ -30,10 +31,10 @@ export default function base58Test(t : Test) {
     t.plan(1)
 
     for (let i = 0; i < rounds; i++) {
-      const random  = Buff.random()
+      const random  = randomBytes(32)
       const encoded = Base58C.encode(random)
       const decoded = Base58C.decode(encoded)
-      results.push([ Buff.raw(decoded).hex, random.hex ])
+      results.push([ Hex.encode(decoded), Hex.encode(random) ])
     }
 
     const failures = results.filter(([ t, e ]) => t !== e)

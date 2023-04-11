@@ -1,5 +1,5 @@
 import { joinArray } from './utils.js'
-import { hash256 }   from './sha2.js'
+import { hash256 }   from './hash.js'
 
 const ec = new TextEncoder()
 
