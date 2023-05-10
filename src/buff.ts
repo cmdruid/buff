@@ -178,6 +178,10 @@ export class Buff extends Uint8Array {
     return new Buff(new Uint8Array(this).slice(start, end))
   }
 
+  subarray (begin ?: number, end ?: number) : Buff {
+    return new Buff(new Uint8Array(this).subarray(begin, end))
+  }
+
   reverse () : Buff {
     return new Buff(new Uint8Array(this).reverse())
   }

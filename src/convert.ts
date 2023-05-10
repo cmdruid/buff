@@ -156,7 +156,7 @@ export function buffer (value : any, bytes = true) : Uint8Array {
     return new Uint8Array(value)
   }
   if (value instanceof Uint8Array) {
-    return value
+    return new Uint8Array(value)
   }
   switch (typeof value) {
     case 'bigint':
