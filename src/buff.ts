@@ -41,11 +41,11 @@ export class Buff extends Uint8Array {
   static str    = (data : string, size ?: number) : Buff => new Buff(C.strToBytes(data), size)
   static hex    = (data : string, size ?: number) : Buff => new Buff(C.hexToBytes(data), size)
   static json   = (data : Json)   : Buff => new Buff(C.strToBytes(JSON.stringify(data)))
-  static bytes  = (data : BufferLike, size ?: number) : Buff => new Buff(C.buffer(data, true), size)
   static base64 = (data : string) : Buff => new Buff(Base64.decode(data))
   static b64url = (data : string) : Buff => new Buff(B64URL.decode(data))
   static bech32 = (data : string) : Buff => new Buff(Bech32.decode(data))
   static b58chk = (data : string) : Buff => new Buff(Base58C.decode(data))
+  static bytes  = (data : BufferLike, size ?: number) : Buff => new Buff(data, size)
 
   constructor (
     data   : BufferLike,
