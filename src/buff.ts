@@ -244,6 +244,22 @@ export class Buff extends Uint8Array {
   static revive (data : string) : string {
     return C.revive(data)
   }
+
+  static stringify (obj : any) : string {
+    return JSON.stringify(obj, (_, v) => {
+      return typeof v === 'bigint'
+        ? `${v}n`
+        : v
+    })
+  }
+
+  static parse (str : string) : Json | any {
+    return JSON.parse(str, (_, v) => {
+      return typeof v === 'string' && /n$/.test(v)
+        ? BigInt(v.slice(0, -1))
+        : v
+    })
+  }
 }
 
 export class Stream {
