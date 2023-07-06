@@ -3,7 +3,11 @@ const B64URL_MAP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567
 
 const ec = new TextEncoder()
 
-function b64encode (input : string | Uint8Array, urlSafe = false) : string {
+function b64encode (
+  input : string | Uint8Array,
+  urlSafe = false,
+  padding = true
+) : string {
   // Normalize the input to the encoder.
   if (typeof input === 'string') input = ec.encode(input)
 
@@ -11,7 +15,7 @@ function b64encode (input : string | Uint8Array, urlSafe = false) : string {
   const map = urlSafe ? B64URL_MAP : BASE64_MAP
 
   let output = ''
-  let bits = 0
+  let bits   = 0
   let buffer = 0
 
   // Encode the input array.
@@ -29,7 +33,7 @@ function b64encode (input : string | Uint8Array, urlSafe = false) : string {
     buffer <<= 6 - bits
     output += map[buffer & 0x3f]
     while (bits < 6) {
-      output += urlSafe ? '' : '='
+      output += padding ? '=' : ''
       bits += 2
     }
   }
@@ -80,6 +84,6 @@ export const Base64 = {
 }
 
 export const B64URL = {
-  encode : (data : string | Uint8Array) => b64encode(data, true),
+  encode : (data : string | Uint8Array, padding = false) => b64encode(data, true, padding),
   decode : (data : string) => b64decode(data, true)
 }

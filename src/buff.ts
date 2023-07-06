@@ -19,7 +19,7 @@ export class Buff extends Uint8Array {
     endian : Endian = 'le'
   ) : Buff => {
     const b = new Buff(C.numToBytes(number), size)
-    return (endian === 'le') ? b.reverse() : b
+    return (endian === 'le') ? b : b.reverse()
   }
 
   static big = (
@@ -28,7 +28,7 @@ export class Buff extends Uint8Array {
     endian : Endian = 'le'
   ) : Buff => {
     const b = new Buff(C.bigToBytes(number), size)
-    return (endian === 'le') ? b.reverse() : b
+    return (endian === 'le') ? b : b.reverse()
   }
 
   static bin = (
@@ -162,8 +162,9 @@ export class Buff extends Uint8Array {
   toBits   () : number[]   { return C.bytesToBinary(this)          }
   toBin    () : string     { return C.bytesToBinary(this).join('') }
   tob58chk () : string     { return Base58C.encode(this)           }
-  toB64url () : string     { return B64URL.encode(this)            }
   toBase64 () : string     { return Base64.encode(this)            }
+
+  toB64url (padding ?: boolean) : string { return B64URL.encode(this, padding) }
   toBech32 (hrp : string, version = 0) : string { return Bech32.encode(this, hrp, version) }
 
   prepend (data : BufferLike) : Buff {

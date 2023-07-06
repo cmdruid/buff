@@ -58,6 +58,7 @@ export function numToBytes (num : number) : Uint8Array {
     bytes.push(byte)
     num = (num - byte) / 256
   }
+  bytes.reverse()
   return new Uint8Array(bytes)
 }
 
@@ -120,6 +121,7 @@ export function bigToBytes (big : bigint) : Uint8Array {
     bytes.push(Number(byte))
     big = (big - byte) / 256n
   }
+  bytes.reverse()
   return new Uint8Array(bytes)
 }
 
