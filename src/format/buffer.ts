@@ -13,10 +13,10 @@ export function buffer (value : any) : Uint8Array {
     return hexToBytes(value)
   }
   if (typeof value === 'bigint') {
-      return bigToBytes(value)
+      return bigToBytes(value).reverse()
   }
   if (typeof value === 'number') {
-    return numToBytes(value)
+    return numToBytes(value).reverse()
   }
   if (typeof value === 'boolean') {
     return Uint8Array.of(value ? 1 : 0)

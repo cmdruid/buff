@@ -1,8 +1,3 @@
-/**
- * Convert a binary string or array of 0s and 1s into a Uint8Array.
- * @param {string | number[]} binary - A binary string or an array of 0s and 1s.
- * @return {Uint8Array} The resulting Uint8Array.
- */
 export function binToBytes (binary : string) : Uint8Array {
   const bins = binary.split('').map(Number)
 
