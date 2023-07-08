@@ -4,7 +4,7 @@ import { is_safe_num } from '../assert.js'
 export function numToBytes (
   num    : number,
   size   : number = 4,
-  endian : Endian = 'le'
+  endian : Endian = 'be'
 ) : Uint8Array {
   const use_le   = (endian === 'le')
   const buffer   = new ArrayBuffer(size)

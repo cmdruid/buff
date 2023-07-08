@@ -7,7 +7,7 @@ const _256n = BigInt(256)
 export function bigToBytes (
   big    : bigint,
   size   : number = 4,
-  endian : Endian = 'le'
+  endian : Endian = 'be'
 ) : Uint8Array {
   const use_le   = (endian === 'le')
   const buffer   = new ArrayBuffer(size)

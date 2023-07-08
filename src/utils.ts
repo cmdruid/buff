@@ -10,7 +10,7 @@ export function random (size = 32) : Uint8Array {
   throw new Error('Crypto module missing getRandomValues!')
 }
 
-export function buffer_data (
+export function set_buffer (
   data   : number[] | Uint8Array,
   size  ?: number,
   endian : Endian = 'be'

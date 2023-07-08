@@ -1,7 +1,7 @@
 import { bigToBytes }    from './big.js'
 import { numToBytes }    from './num.js'
 import { hexToBytes }    from './str.js'
-import { buffer_data }   from '../utils.js'
+import { set_buffer }    from '../utils.js'
 import { Bytes, Endian } from '../types.js'
 
 export function buffer (
@@ -13,7 +13,7 @@ export function buffer (
     return new Uint8Array(data)
   }
   if (data instanceof Uint8Array) {
-    return buffer_data(data, size, endian)
+    return set_buffer(data, size, endian)
   }
   if (typeof data === 'string') {
     return hexToBytes(data, size, endian)

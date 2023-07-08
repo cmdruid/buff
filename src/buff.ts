@@ -28,11 +28,11 @@ export class Buff extends Uint8Array {
   }
 
   constructor (
-    data  : Bytes,
-    size ?: number
+    data    : Bytes,
+    size   ?: number,
+    endian ?: Endian
   ) {
-    const bytes  = fmt.buffer(data)
-    const buffer = util.buffer_data(bytes, size)
+    const buffer = fmt.buffer(data, size, endian)
     super(buffer)
   }
 
@@ -190,58 +190,59 @@ export class Buff extends Uint8Array {
 }
 
 function numToBuff (
-  number : number,
-  size  ?: number,
-  endian : Endian = 'be'
+  number  : number,
+  size   ?: number,
+  endian ?: Endian
 ) : Buff {
-  let n = fmt.numToBytes(number)
-  if (endian === 'be') n = n.reverse()
-  return new Buff(n, size)
+  return new Buff(number, size, endian)
 }
 
 function binToBuff (
-  data : string,
-  size ?: number
+  data    : string,
+  size   ?: number,
+  endian ?: Endian
 ) : Buff {
-  return new Buff(fmt.binToBytes(data), size)
+  return new Buff(fmt.binToBytes(data), size, endian)
 }
 
 function bigToBuff (
-    number : bigint,
-    size  ?: number,
-    endian : Endian = 'be'
-  ) : Buff {
-    let b = fmt.bigToBytes(number)
-    if (endian === 'be') b = b.reverse()
-    return new Buff(b, size)
-  }
+  bigint  : bigint,
+  size   ?: number,
+  endian ?: Endian
+) : Buff {
+  return new Buff(bigint, size, endian)
+}
 
 function rawToBuff (
-  data  : Uint8Array,
-  size ?: number
+  data    : Uint8Array,
+  size   ?: number,
+  endian ?: Endian
 ) : Buff {
-  return new Buff(data, size)
+  return new Buff(data, size, endian)
 }
 
 function strToBuff (
-  data  : string,
-  size ?: number
+  data    : string,
+  size   ?: number,
+  endian ?: Endian
 ) : Buff {
-  return new Buff(fmt.strToBytes(data), size)
+  return new Buff(fmt.strToBytes(data), size, endian)
 }
 
 function hexToBuff (
-  data  : string,
-  size ?: number
+  data    : string,
+  size   ?: number,
+  endian ?: Endian
 ) : Buff {
-  return new Buff(fmt.hexToBytes(data), size)
+  return new Buff(data, size, endian)
 }
 
 function bytesToBuff (
-  data  : Bytes,
-  size ?: number
+  data    : Bytes,
+  size   ?: number,
+  endian ?: Endian
 ) : Buff {
-  return new Buff(data, size)
+  return new Buff(data, size, endian)
 }
 
 function jsonToBuff <T> (
