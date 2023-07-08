@@ -1,5 +1,5 @@
-import { joinArray } from './utils.js'
-import { hash256 }   from './hash.js'
+import { join_array } from '../utils.js'
+import { hash256 }    from '../hash.js'
 
 const ec = new TextEncoder()
 
@@ -107,14 +107,14 @@ function decode (
   return new Uint8Array(b)
 }
 
-export function addChecksum (
+function addChecksum (
   data : Uint8Array
 ) : Uint8Array {
   const sum = hash256(data)
-  return joinArray([ data, sum.slice(0, 4) ])
+  return join_array([ data, sum.slice(0, 4) ])
 }
 
-export function checkTheSum (
+function checkTheSum (
   data : Uint8Array
 ) : Uint8Array {
   const ret = data.slice(0, -4)
@@ -126,7 +126,7 @@ export function checkTheSum (
   return ret
 }
 
-export const BaseX = {
+const BaseX = {
   encode,
   decode
 }

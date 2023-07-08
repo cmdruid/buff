@@ -84,6 +84,6 @@ export const Base64 = {
 }
 
 export const B64URL = {
-  encode : (data : string | Uint8Array, padding = false) => b64encode(data, true, padding),
+  encode : (data : string | Uint8Array) => b64encode(data, true, false),
   decode : (data : string) => b64decode(data, true)
 }

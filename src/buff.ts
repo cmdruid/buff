@@ -1,64 +1,48 @@
-import { randomBytes }    from '@noble/hashes/utils'
-import * as C             from './convert.js'
-import { Bech32 }         from './bech32.js'
-import { Base58C }        from './base58.js'
-import { Base64, B64URL } from './base64.js'
-import { Bytes, Json }    from './types.js'
-import { joinArray }      from './utils.js'
-import { Hash }           from './hash.js'
+import { hash, hmac }     from './hash.js'
+import { Bech32 }         from './encode/bech32.js'
+import { Base58C }        from './encode/base58.js'
+import { Base64, B64URL } from './encode/base64.js'
+import * as fmt           from './format/index.js'
+import * as util          from './utils.js'
 
-type BufferLike = Buff | ArrayBuffer | ArrayBufferLike | Uint8Array | string | number | bigint | boolean
-type HashTypes  = 'sha256'  | 'hash256' | 'ripe160' | 'hash160'
-type HmacTypes  = 'hmac256' | 'hmac512'
-type Endian     = 'le' | 'be'
+import {
+  Bytes,
+  Json,
+  HashTypes,
+  HmacTypes,
+  Endian
+} from './types.js'
 
 export class Buff extends Uint8Array {
-  static num = (
-    number : number,
-    size  ?: number,
-    endian : Endian = 'le'
-  ) : Buff => {
-    const b = new Buff(C.numToBytes(number), size)
-    return (endian === 'le') ? b : b.reverse()
+  static num    = numToBuff
+  static big    = bigToBuff
+  static bin    = binToBuff
+  static raw    = rawToBuff
+  static str    = strToBuff
+  static hex    = hexToBuff
+  static bytes  = bytesToBuff
+  static json   = jsonToBuff
+  static base64 = base64ToBuff
+  static b64url = b64urlToBuff
+  static bech32 = bech32ToBuff
+  static b58chk = b58chkToBuff
+  static encode = fmt.strToBytes
+  static decode = fmt.bytesToStr
+
+  static random (size = 32) : Buff {
+    const rand = util.random(size)
+    return new Buff(rand, size)
   }
-
-  static big = (
-    number : bigint,
-    size  ?: number,
-    endian : Endian = 'le'
-  ) : Buff => {
-    const b = new Buff(C.bigToBytes(number), size)
-    return (endian === 'le') ? b : b.reverse()
-  }
-
-  static bin = (
-    data : string | number[],
-    size ?: number
-  ) : Buff => new Buff(C.binaryToBytes(data), size)
-
-  static any    = (data : any, size ?: number) : Buff => new Buff(C.buffer(data, false), size)
-  static raw    = (data : ArrayBufferLike, size ?: number) : Buff => new Buff(data, size)
-  static str    = (data : string, size ?: number) : Buff => new Buff(C.strToBytes(data), size)
-  static hex    = (data : string, size ?: number) : Buff => new Buff(C.hexToBytes(data), size)
-  static json   = (data : Json)   : Buff => new Buff(C.strToBytes(JSON.stringify(data)))
-  static base64 = (data : string) : Buff => new Buff(Base64.decode(data))
-  static b64url = (data : string) : Buff => new Buff(B64URL.decode(data))
-  static bech32 = (data : string) : Buff => new Buff(Bech32.decode(data))
-  static b58chk = (data : string) : Buff => new Buff(Base58C.decode(data))
-  static bytes  = (data : BufferLike, size ?: number) : Buff => new Buff(data, size)
 
   constructor (
-    data   : BufferLike,
+    data   : Bytes | ArrayBufferLike,
     size  ?: number
   ) {
-    data = C.buffer(data, true)
+    let bytes = fmt.buffer(data)
     if (typeof size === 'number') {
-      const tmp = new Uint8Array(size).fill(0)
-      tmp.set(new Uint8Array(data))
-      data = tmp.buffer
+      bytes = util.pad_array(bytes, size)
     }
-    super(data)
-    return this
+    super(bytes)
   }
 
   get arr () : number[] {
@@ -83,10 +67,6 @@ export class Buff extends Uint8Array {
 
   get raw () : Uint8Array {
     return new Uint8Array(this)
-  }
-
-  get bits () : number[] {
-    return this.toBits()
   }
 
   get bin () : string {
@@ -117,78 +97,76 @@ export class Buff extends Uint8Array {
     return new Stream(this)
   }
 
-  toNum (endian : Endian = 'le') : number {
-    return (endian === 'le')
-      ? C.bytesToNum(this.reverse())
-      : C.bytesToNum(this)
+  toNum (endian : Endian = 'be') : number {
+    const bytes = (endian === 'be')
+      ? this.reverse()
+      : this
+    return fmt.bytesToNum(bytes)
   }
 
-  toBig (endian : Endian = 'le') : bigint {
-    return (endian === 'le')
-      ? C.bytesToBig(this.reverse())
-      : C.bytesToBig(this)
+  toBin () : string {
+    return fmt.bytesToBin(this)
   }
 
-  toHash (type : HashTypes = 'sha256') : Buff {
-    switch (type) {
-      case 'sha256':
-        return new Buff(Hash.sha256(this))
-      case 'hash256':
-        return new Buff(Hash.hash256(this))
-      case 'ripe160':
-        return new Buff(Hash.ripe160(this))
-      case 'hash160':
-        return new Buff(Hash.hash160(this))
-      default:
-        throw new Error('Unrecognized format:' + String(type))
-    }
+  toBig (endian : Endian = 'be') : bigint {
+    const bytes = (endian === 'be')
+      ? this.reverse()
+      : this
+    return fmt.bytesToBig(bytes)
   }
 
-  toHmac (key : Bytes, type : HmacTypes = 'hmac256') : Buff {
-    switch (type) {
-      case 'hmac256':
-        return new Buff(Hash.hmac256(key, this))
-      case 'hmac512':
-        return new Buff(Hash.hmac512(key, this))
-       default:
-        throw new Error('Unrecognized format:' + String(type))
-    }
+  toHash (type ?: HashTypes) : Buff {
+    const digest = hash(this, type)
+    return new Buff(digest)
   }
 
-  toStr    () : string     { return C.bytesToStr(this)             }
-  toHex    () : string     { return C.bytesToHex(this)             }
-  toJson   () : Json       { return JSON.parse(C.bytesToStr(this)) }
-  toBytes  () : Uint8Array { return new Uint8Array(this)           }
-  toBits   () : number[]   { return C.bytesToBinary(this)          }
-  toBin    () : string     { return C.bytesToBinary(this).join('') }
-  tob58chk () : string     { return Base58C.encode(this)           }
-  toBase64 () : string     { return Base64.encode(this)            }
+  toHmac (key : Bytes, type : HmacTypes) : Buff {
+    const digest = hmac(key, this, type)
+    return new Buff(digest)
+  }
 
-  toB64url (padding ?: boolean) : string { return B64URL.encode(this, padding) }
-  toBech32 (hrp : string, version = 0) : string { return Bech32.encode(this, hrp, version) }
+  toJson () : Json {
+    const str = fmt.bytesToStr(this)
+    return JSON.parse(str)
+  }
 
-  prepend (data : BufferLike) : Buff {
+  toBech32 (hrp : string, version = 0) : string {
+    return Bech32.encode(this, hrp, version)
+  }
+
+  toStr    () : string     { return fmt.bytesToStr(this)    }
+  toHex    () : string     { return fmt.bytesToHex(this)    }
+  toBytes  () : Uint8Array { return new Uint8Array(this)    }
+  tob58chk () : string     { return Base58C.encode(this)    }
+  toBase64 () : string     { return Base64.encode(this)     }
+  toB64url () : string     { return B64URL.encode(this)     }
+
+  prepend (data : Bytes) : Buff {
     return Buff.join([ Buff.bytes(data), this ])
   }
 
-  append (data : BufferLike) : Buff {
+  append (data : Bytes) : Buff {
     return Buff.join([ this, Buff.bytes(data) ])
   }
 
   slice (start ?: number, end ?: number) : Buff {
-    return new Buff(new Uint8Array(this).slice(start, end))
+    const arr = new Uint8Array(this).slice(start, end)
+    return new Buff(arr)
   }
 
   subarray (begin ?: number, end ?: number) : Buff {
-    return new Buff(new Uint8Array(this).subarray(begin, end))
+    const arr = new Uint8Array(this).subarray(begin, end)
+    return new Buff(arr)
   }
 
   reverse () : Buff {
-    return new Buff(new Uint8Array(this).reverse())
+    const arr = new Uint8Array(this).reverse()
+    return new Buff(arr)
   }
 
-  write (bytes : Uint8Array, offset ?: number) : void {
-    this.set(bytes, offset)
+  write (bytes : Bytes, offset ?: number) : void {
+    const b = Buff.bytes(bytes)
+    this.set(b, offset)
   }
 
   prefixSize (endian ?: Endian) : Buff {
@@ -204,9 +182,10 @@ export class Buff extends Uint8Array {
     return new Buff(Uint8Array.of(...args))
   }
 
-  static join (arr : BufferLike[]) : Buff {
-    const data = arr.map(e => Buff.bytes(e))
-    return new Buff(joinArray(data))
+  static join (arr : Bytes[]) : Buff {
+    const bytes  = arr.map(e => Buff.bytes(e))
+    const joined = util.join_array(bytes)
+    return new Buff(joined)
   }
 
   static varInt (num : number, endian ?: Endian) : Buff {
@@ -222,53 +201,99 @@ export class Buff extends Uint8Array {
       throw new Error(`Value is too large: ${num}`)
     }
   }
+}
 
-  static encode = C.strToBytes
-  static decode = C.bytesToStr
+function numToBuff (
+  number : number,
+  size  ?: number,
+  endian : Endian = 'be'
+) : Buff {
+  let n = fmt.numToBytes(number)
+  if (endian === 'be') n = n.reverse()
+  return new Buff(n, size)
+}
 
-  static random (size : number = 32) : Buff {
-    return new Buff(randomBytes(size), size)
+function binToBuff (
+  data : string,
+  size ?: number
+) : Buff {
+  return new Buff(fmt.binToBytes(data), size)
+}
+
+function bigToBuff (
+    number : bigint,
+    size  ?: number,
+    endian : Endian = 'be'
+  ) : Buff {
+    let b = fmt.bigToBytes(number)
+    if (endian === 'be') b = b.reverse()
+    return new Buff(b, size)
   }
 
-  static normalize (bytes : Bytes, size ?: number) : Buff {
-    return new Buff(C.buffer(bytes, true), size)
-  }
+function rawToBuff (
+  data  : Uint8Array,
+  size ?: number
+) : Buff {
+  return new Buff(data, size)
+}
 
-  static hexify (bytes : Bytes) : string {
-    return C.hexify(bytes)
-  }
+function strToBuff (
+  data  : string,
+  size ?: number
+) : Buff {
+  return new Buff(fmt.strToBytes(data), size)
+}
 
-  static serialize (data : any, size ?: number) : Buff {
-    return new Buff(C.serialize(data), size)
-  }
+function hexToBuff (
+  data  : string,
+  size ?: number
+) : Buff {
+  return new Buff(fmt.hexToBytes(data), size)
+}
 
-  static revive (data : string) : string {
-    return C.revive(data)
-  }
+function bytesToBuff (
+  data  : Bytes,
+  size ?: number
+) : Buff {
+  return new Buff(data, size)
+}
 
-  static stringify (obj : any) : string {
-    return JSON.stringify(obj, (_, v) => {
-      return typeof v === 'bigint'
-        ? `${v}n`
-        : v
-    })
-  }
+function jsonToBuff (
+  data : Json
+) : Buff {
+  return new Buff(fmt.jsonToBytes(data))
+}
 
-  static parse (str : string) : Json | any {
-    return JSON.parse(str, (_, v) => {
-      return typeof v === 'string' && /n$/.test(v)
-        ? BigInt(v.slice(0, -1))
-        : v
-    })
-  }
+function base64ToBuff (
+  data : string
+) : Buff {
+  return new Buff(Base64.decode(data))
+}
+
+function b64urlToBuff (
+  data : string
+) : Buff {
+  return new Buff(B64URL.decode(data))
+}
+
+function bech32ToBuff (
+  data : string
+) : Buff {
+  return new Buff(Bech32.decode(data))
+}
+
+function b58chkToBuff (
+  data : string
+) : Buff {
+  return new Buff(Base58C.decode(data))
 }
 
 export class Stream {
   public size : number
   public data : Uint8Array
 
-  constructor (data : ArrayBufferLike) {
-    this.data = new Uint8Array(data)
+  constructor (data : Bytes) {
+    this.data = Buff.bytes(data)
     this.size = this.data.length
   }
 
@@ -276,7 +301,7 @@ export class Stream {
     if (size > this.size) {
       throw new Error(`Size greater than stream: ${size} > ${this.size}`)
     }
-    return new Buff(this.data.slice(0, size).buffer)
+    return new Buff(this.data.slice(0, size))
   }
 
   read (size : number) : Buff {

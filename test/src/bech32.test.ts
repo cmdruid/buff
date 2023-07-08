@@ -1,11 +1,10 @@
-import { Test }     from 'tape'
-import { Hex }      from '../../../src/convert.js'
-import { Bech32 }   from '../../../src/bech32.js'
-import pass_vectors from './pass.vectors.json' assert { type: 'json' }
-import fail_vectors from './fail.vectors.json' assert { type: 'json' }
-import { randomBytes } from '@noble/hashes/utils'
+import { Test }   from 'tape'
+import { Hex }    from '../../src/index.js'
+import { Bech32 } from '../../src/index.js'
+import * as util  from '../../src/utils.js'
 
-// ["bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx", "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6"],
+import pass_vectors from './vectors/bech32.pass.json' assert { type: 'json' }
+import fail_vectors from './vectors/bech32.fail.json' assert { type: 'json' }
 
 export default function bech32Test(t : Test) {
 
@@ -63,7 +62,7 @@ export default function bech32Test(t : Test) {
     const results :string[][] = []
 
     for (let i = 0; i < rounds; i++) {
-      const random  = randomBytes(32)
+      const random  = util.random(32)
       const version = Math.floor(Math.random())
       const encoded = Bech32.encode(random, 'bc', version)
       const decoded = Bech32.decode(encoded)
