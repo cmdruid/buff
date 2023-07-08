@@ -1,5 +1,5 @@
 import { Test } from 'tape'
-import { Buff } from '../../src/index.js'
+import { Buff, buffer } from '../../src/index.js'
 
 const number = 4294901760
 const bigint = BigInt(number)
@@ -12,14 +12,14 @@ export default function endian_test(t : Test) {
 
   t.test('Endianess test.', t => {
 
-    const num_be_to_raw = Buff.num(number, 4, 'be').raw
-    const num_le_to_raw = Buff.num(number, 4, 'le').raw
+    const num_be_to_raw = buffer(number, 4, 'be')
+    const num_le_to_raw = buffer(number, 4, 'le')
 
-    const big_be_to_raw = Buff.big(bigint, 4, 'be').raw
-    const big_le_to_raw = Buff.big(bigint, 4, 'le').raw
+    const big_be_to_raw = buffer(bigint, 4, 'be')
+    const big_le_to_raw = buffer(bigint, 4, 'le')
 
-    const hex_be_to_raw = Buff.hex(hex_be).raw
-    const hex_le_to_raw = Buff.hex(hex_le).raw
+    const hex_be_to_raw = buffer(hex_be)
+    const hex_le_to_raw = buffer(hex_le)
 
     const raw_be_to_num = Buff.raw(raw_be).toNum('be')
     const raw_le_to_num = Buff.raw(raw_le).toNum('le')

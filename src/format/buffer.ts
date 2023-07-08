@@ -1,25 +1,31 @@
-import { bigToBytes } from './big.js'
-import { numToBytes } from './num.js'
-import { hexToBytes } from './str.js'
+import { bigToBytes }    from './big.js'
+import { numToBytes }    from './num.js'
+import { hexToBytes }    from './str.js'
+import { buffer_data }   from '../utils.js'
+import { Bytes, Endian } from '../types.js'
 
-export function buffer (value : any) : Uint8Array {
-  if (value instanceof ArrayBuffer) {
-    return new Uint8Array(value)
+export function buffer (
+  data    : Bytes,
+  size   ?: number,
+  endian ?: Endian
+) : Uint8Array {
+  if (data instanceof ArrayBuffer) {
+    return new Uint8Array(data)
   }
-  if (value instanceof Uint8Array) {
-    return new Uint8Array(value)
+  if (data instanceof Uint8Array) {
+    return buffer_data(data, size, endian)
   }
-  if (typeof value === 'string') {
-    return hexToBytes(value)
+  if (typeof data === 'string') {
+    return hexToBytes(data, size, endian)
   }
-  if (typeof value === 'bigint') {
-      return bigToBytes(value).reverse()
+  if (typeof data === 'bigint') {
+      return bigToBytes(data, size, endian)
   }
-  if (typeof value === 'number') {
-    return numToBytes(value).reverse()
+  if (typeof data === 'number') {
+    return numToBytes(data, size, endian)
   }
-  if (typeof value === 'boolean') {
-    return Uint8Array.of(value ? 1 : 0)
+  if (typeof data === 'boolean') {
+    return Uint8Array.of(data ? 1 : 0)
   }
-  throw TypeError('Unsupported format:' + String(typeof value))
+  throw TypeError('Unsupported format:' + String(typeof data))
 }

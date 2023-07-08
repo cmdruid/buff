@@ -1,3 +1,12 @@
+export function within_size (
+  data : number[] | Uint8Array,
+  size : number
+) : void {
+  if (data.length > size) {
+    throw new TypeError(`Data is larger than array size: ${data.length} > ${size}`)
+  }
+}
+
 export function is_hex (hex : string) : void {
   if (hex.match(/[^a-fA-f0-9]/) !== null) {
     throw new TypeError('Invalid characters in hex string: ' + hex)

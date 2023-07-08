@@ -1,3 +1,6 @@
+import { within_size } from './assert.js'
+import { Endian }      from './types.js'
+
 const { getRandomValues } = crypto ?? globalThis.crypto ?? window.crypto
 
 export function random (size = 32) : Uint8Array {
@@ -7,17 +10,17 @@ export function random (size = 32) : Uint8Array {
   throw new Error('Crypto module missing getRandomValues!')
 }
 
-export function pad_array (
-  data : Uint8Array,
-  size : number
+export function buffer_data (
+  data   : number[] | Uint8Array,
+  size  ?: number,
+  endian : Endian = 'be'
 ) : Uint8Array {
-  if (data.length > size) {
-    throw new TypeError(`Data is larger than array size: ${data.length} > ${size}`)
-  }
-  const padding = new Uint8Array(size).fill(0)
-  const offset  = size - data.length
-  padding.set(data, offset)
-  return padding
+  if (size === undefined) size = data.length
+  within_size(data, size)
+  const buffer = new Uint8Array(size).fill(0)
+  const offset = (endian === 'be') ? 0 : size - data.length
+  buffer.set(data, offset)
+  return buffer
 }
 
 export function join_array (

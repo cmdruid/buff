@@ -1,7 +1,7 @@
 import { Test } from 'tape'
 import { Buff } from '../../src/index.js'
 
-const DEBUG = true
+const DEBUG = false
 
 function getRandom(size = 0x80FFFFFF) {
   return Math.floor(Math.random() * size)

@@ -2,11 +2,9 @@ import { sha256 }         from '@noble/hashes/sha256'
 import { Bech32 }         from './encode/bech32.js'
 import { Base58C }        from './encode/base58.js'
 import { Base64, B64URL } from './encode/base64.js'
+import { Bytes, Endian }  from './types.js'
 import * as fmt           from './format/index.js'
 import * as util          from './utils.js'
-
-export type Bytes   = string | number | bigint | Uint8Array
-export type Endian  = 'le' | 'be'
 
 export class Buff extends Uint8Array {
   static num    = numToBuff
@@ -30,14 +28,12 @@ export class Buff extends Uint8Array {
   }
 
   constructor (
-    data   : Bytes | ArrayBufferLike,
-    size  ?: number
+    data  : Bytes,
+    size ?: number
   ) {
-    let bytes = fmt.buffer(data)
-    if (typeof size === 'number') {
-      bytes = util.pad_array(bytes, size)
-    }
-    super(bytes)
+    const bytes  = fmt.buffer(data)
+    const buffer = util.buffer_data(bytes, size)
+    super(buffer)
   }
 
   get arr () : number[] {

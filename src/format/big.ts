@@ -1,16 +1,29 @@
+import { Endian } from '../types.js'
+
 const _0n   = BigInt(0)
 const _255n = BigInt(255)
 const _256n = BigInt(256)
 
-export function bigToBytes (big : bigint) : Uint8Array {
-  if (big === _0n) return Uint8Array.of(0x00)
-  const bytes = []
+export function bigToBytes (
+  big    : bigint,
+  size   : number = 4,
+  endian : Endian = 'le'
+) : Uint8Array {
+  const use_le   = (endian === 'le')
+  const buffer   = new ArrayBuffer(size)
+  const dataView = new DataView(buffer)
+    let offset   = (use_le) ? 0 : size - 1
   while (big > _0n) {
     const byte = big & _255n
-    bytes.push(Number(byte))
+    const num  = Number(byte)
+    if (use_le) {
+      dataView.setUint8(offset++, num)
+    } else {
+      dataView.setUint8(offset--, num)
+    }
     big = (big - byte) / _256n
   }
-  return new Uint8Array(bytes)
+  return new Uint8Array(buffer)
 }
 
 export function bytesToBig (bytes : Uint8Array) : bigint {

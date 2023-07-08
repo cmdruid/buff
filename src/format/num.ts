@@ -1,14 +1,25 @@
+import { Endian }      from '../types.js'
 import { is_safe_num } from '../assert.js'
 
-export function numToBytes (num : number) : Uint8Array {
-  if (num === 0) return Uint8Array.of(0x00)
-  const bytes : number[] = []
+export function numToBytes (
+  num    : number,
+  size   : number = 4,
+  endian : Endian = 'le'
+) : Uint8Array {
+  const use_le   = (endian === 'le')
+  const buffer   = new ArrayBuffer(size)
+  const dataView = new DataView(buffer)
+    let offset   = (use_le) ? 0 : size - 1
   while (num > 0) {
-    const byte = num & 0xff
-    bytes.push(byte)
+    const byte = num & 255
+    if (use_le) {
+      dataView.setUint8(offset++, num)
+    } else {
+      dataView.setUint8(offset--, num)
+    }
     num = (num - byte) / 256
   }
-  return new Uint8Array(bytes)
+  return new Uint8Array(buffer)
 }
 
 export function bytesToNum (bytes : Uint8Array) : number {
