@@ -1,5 +1,5 @@
+import { sha256 }     from '@noble/hashes/sha256'
 import { join_array } from '../utils.js'
-import { hash256 }    from '../hash.js'
 
 const ec = new TextEncoder()
 
@@ -105,6 +105,10 @@ function decode (
   }
 
   return new Uint8Array(b)
+}
+
+function hash256 (data : Uint8Array) : Uint8Array {
+  return sha256(sha256(data))
 }
 
 function addChecksum (

@@ -1,17 +1,12 @@
-import { hash, hmac }     from './hash.js'
+import { sha256 }         from '@noble/hashes/sha256'
 import { Bech32 }         from './encode/bech32.js'
 import { Base58C }        from './encode/base58.js'
 import { Base64, B64URL } from './encode/base64.js'
 import * as fmt           from './format/index.js'
 import * as util          from './utils.js'
 
-import {
-  Bytes,
-  Json,
-  HashTypes,
-  HmacTypes,
-  Endian
-} from './types.js'
+export type Bytes   = string | number | bigint | Uint8Array
+export type Endian  = 'le' | 'be'
 
 export class Buff extends Uint8Array {
   static num    = numToBuff
@@ -115,17 +110,12 @@ export class Buff extends Uint8Array {
     return fmt.bytesToBig(bytes)
   }
 
-  toHash (type ?: HashTypes) : Buff {
-    const digest = hash(this, type)
+  toHash () : Buff {
+    const digest = sha256(this)
     return new Buff(digest)
   }
 
-  toHmac (key : Bytes, type : HmacTypes) : Buff {
-    const digest = hmac(key, this, type)
-    return new Buff(digest)
-  }
-
-  toJson () : Json {
+  toJson <T = any> () : T {
     const str = fmt.bytesToStr(this)
     return JSON.parse(str)
   }
@@ -258,8 +248,8 @@ function bytesToBuff (
   return new Buff(data, size)
 }
 
-function jsonToBuff (
-  data : Json
+function jsonToBuff <T> (
+  data : T
 ) : Buff {
   return new Buff(fmt.jsonToBytes(data))
 }
