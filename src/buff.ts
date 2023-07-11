@@ -32,6 +32,13 @@ export class Buff extends Uint8Array {
     size   ?: number,
     endian ?: Endian
   ) {
+    if (
+      data instanceof Buff &&
+      size === undefined
+    ) {
+      return data
+    }
+
     const buffer = fmt.buffer(data, size, endian)
     super(buffer)
   }

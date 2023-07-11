@@ -1,11 +1,23 @@
 import { Endian }      from '../types.js'
 import { is_safe_num } from '../assert.js'
 
+function num_size (
+  num : number) : number {
+  // 1 byte.
+  if (num <= 0xFF) return 1
+  // 2 bytes.
+  if (num <= 0xFFFF) return 2
+  // 4 bytes.
+  if (num <= 0xFFFFFFFF) return 4
+  throw new TypeError('Numbers larger than 4 bytes must specify a fixed size!')
+}
+
 export function numToBytes (
   num    : number,
-  size   : number = 4,
+  size  ?: number,
   endian : Endian = 'be'
 ) : Uint8Array {
+  if (size === undefined) size = num_size(num)
   const use_le   = (endian === 'le')
   const buffer   = new ArrayBuffer(size)
   const dataView = new DataView(buffer)
