@@ -5,7 +5,7 @@ import { set_buffer }    from '../utils.js'
 import { Bytes, Endian } from '../types.js'
 
 export function buffer (
-  data    : Bytes,
+  data    : Bytes | ArrayBuffer,
   size   ?: number,
   endian ?: Endian
 ) : Uint8Array {

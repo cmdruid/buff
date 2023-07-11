@@ -28,7 +28,7 @@ export class Buff extends Uint8Array {
   }
 
   constructor (
-    data    : Bytes,
+    data    : Bytes | ArrayBuffer,
     size   ?: number,
     endian ?: Endian
   ) {
