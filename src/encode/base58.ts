@@ -140,7 +140,7 @@ export const Base58 = {
   decode : (data : string) => BaseX.decode(data, 'base58')
 }
 
-export const Base58C = {
+export const B58CHK = {
   encode: (data : Uint8Array) => {
     const withSum = addChecksum(data)
     return BaseX.encode(withSum, 'base58')

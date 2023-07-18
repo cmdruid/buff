@@ -52,8 +52,6 @@ rules:
           after     : true
 
 ignorePatterns:
-  - build
-  - contrib
   - coverage
   - dist
   - test

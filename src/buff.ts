@@ -1,6 +1,6 @@
 import { sha256 }         from '@noble/hashes/sha256'
 import { Bech32 }         from './encode/bech32.js'
-import { Base58C }        from './encode/base58.js'
+import { B58CHK }         from './encode/base58.js'
 import { Base64, B64URL } from './encode/base64.js'
 import { Bytes, Endian }  from './types.js'
 import * as fmt           from './format/index.js'
@@ -13,7 +13,7 @@ export class Buff extends Uint8Array {
   static raw    = rawToBuff
   static str    = strToBuff
   static hex    = hexToBuff
-  static bytes  = bytesToBuff
+  static bytes  = buffer
   static json   = jsonToBuff
   static base64 = base64ToBuff
   static b64url = b64urlToBuff
@@ -28,7 +28,7 @@ export class Buff extends Uint8Array {
   }
 
   constructor (
-    data    : Bytes | ArrayBuffer,
+    data    : Bytes | Bytes[] | ArrayBuffer,
     size   ?: number,
     endian ?: Endian
   ) {
@@ -39,7 +39,7 @@ export class Buff extends Uint8Array {
       return data
     }
 
-    const buffer = fmt.buffer(data, size, endian)
+    const buffer = fmt.buffer_data(data, size, endian)
     super(buffer)
   }
 
@@ -130,7 +130,7 @@ export class Buff extends Uint8Array {
   toStr    () : string     { return fmt.bytesToStr(this)    }
   toHex    () : string     { return fmt.bytesToHex(this)    }
   toBytes  () : Uint8Array { return new Uint8Array(this)    }
-  tob58chk () : string     { return Base58C.encode(this)    }
+  tob58chk () : string     { return B58CHK.encode(this)    }
   toBase64 () : string     { return Base64.encode(this)     }
   toB64url () : string     { return B64URL.encode(this)     }
 
@@ -179,6 +179,12 @@ export class Buff extends Uint8Array {
     const bytes  = arr.map(e => Buff.bytes(e))
     const joined = util.join_array(bytes)
     return new Buff(joined)
+  }
+
+  static sort (arr : Bytes[], size ?: number) : Buff[] {
+    const hex = arr.map(e => buffer(e, size).hex)
+    hex.sort()
+    return hex.map(e => Buff.hex(e, size))
   }
 
   static varInt (num : number, endian ?: Endian) : Buff {
@@ -244,14 +250,6 @@ function hexToBuff (
   return new Buff(data, size, endian)
 }
 
-function bytesToBuff (
-  data    : Bytes,
-  size   ?: number,
-  endian ?: Endian
-) : Buff {
-  return new Buff(data, size, endian)
-}
-
 function jsonToBuff <T> (
   data : T
 ) : Buff {
@@ -279,7 +277,7 @@ function bech32ToBuff (
 function b58chkToBuff (
   data : string
 ) : Buff {
-  return new Buff(Base58C.decode(data))
+  return new Buff(B58CHK.decode(data))
 }
 
 export class Stream {
@@ -321,4 +319,12 @@ export class Stream {
         throw new Error(`Varint is out of range: ${num}`)
     }
   }
+}
+
+export function buffer (
+  bytes : Bytes | Bytes[] | ArrayBuffer,
+  size ?: number,
+  end  ?: Endian
+) : Buff {
+  return new Buff(bytes, size, end)
 }

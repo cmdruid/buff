@@ -2,7 +2,7 @@ import { Test }  from 'tape'
 import { Hex }   from '../../src/index.js'
 import * as util from '../../src/utils.js'
 
-import { Base58, Base58C } from '../../src/index.js'
+import { Base58, B58CHK } from '../../src/index.js'
 
 import test_vectors from './vectors/basex.json' assert { type: 'json' }
 
@@ -34,8 +34,8 @@ export default function base58Test(t : Test) {
 
     for (let i = 0; i < rounds; i++) {
       const random  = util.random(32)
-      const encoded = Base58C.encode(random)
-      const decoded = Base58C.decode(encoded)
+      const encoded = B58CHK.encode(random)
+      const decoded = B58CHK.decode(encoded)
       results.push([ Hex.encode(decoded), Hex.encode(random) ])
     }
 

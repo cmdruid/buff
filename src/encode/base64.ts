@@ -41,7 +41,7 @@ function b64encode (
   return output
 }
 
-export function b64decode (input : string, urlSafe = false) : Uint8Array {
+function b64decode (input : string, urlSafe = false) : Uint8Array {
   // Determine which map to use based on the input string.
   const map = (urlSafe || input.includes('-') || input.includes('_'))
     ? B64URL_MAP.split('')

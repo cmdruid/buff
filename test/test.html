@@ -5,13 +5,13 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Test</title>
-  <script src="../../dist/bundle.min.js"></script>
+  <script src="../../dist/browser.js"></script>
 </head>
 <body>
   <script>
     console.dir(window)
 
-    const Buff = window.buffUtils.Buff
+    const { Buff } = window.buff_utils
 
     const random = Buff.random(8).toHex()
 
