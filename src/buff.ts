@@ -1,10 +1,12 @@
 import { sha256 }        from '@noble/hashes/sha256'
 import { Encoder }       from './encode.js'
-import { Bytes, Endian } from './types.js'
+import { Bytes, Endian, Replacer } from './types.js'
 
 import * as assert       from './assert.js'
 import * as fmt          from './format/index.js'
 import * as util         from './utils.js'
+
+type Reviver = (this : any, key : string, value : any) => any
 
 export class Buff extends Uint8Array {
   static num     = numToBuff
@@ -119,9 +121,12 @@ export class Buff extends Uint8Array {
     return new Buff(digest)
   }
 
-  toJson <T = any> () : T {
+  toJson <T = any> (reviver ?: Reviver) : T {
+    if (reviver === undefined) {
+      reviver = util.bigint_reviver
+    }
     const str = fmt.bytesToStr(this)
-    return JSON.parse(str)
+    return JSON.parse(str, reviver)
   }
 
   toBech32 (prefix : string) : string {
@@ -256,9 +261,15 @@ function hexToBuff (
 }
 
 function jsonToBuff <T> (
-  data : T
+  data      : T,
+  replacer ?: Replacer,
+  space    ?: number
 ) : Buff {
-  return new Buff(fmt.jsonToBytes(data))
+  if (replacer === undefined) {
+    replacer = util.bigint_replacer
+  }
+  const str = JSON.stringify(data, replacer, space)
+  return new Buff(fmt.strToBytes(str))
 }
 
 function base64ToBuff (

@@ -36,3 +36,15 @@ export function join_array (
   }
   return buff
 }
+
+export function bigint_replacer (_ : any, v : any) : any {
+  return typeof v === 'bigint'
+    ? `${v}n`
+    : v
+}
+
+export function bigint_reviver (_ : any, v : any) : any {
+  return typeof v === 'string' && /n$/.test(v)
+    ? BigInt(v.slice(0, -1))
+    : v
+}

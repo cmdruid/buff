@@ -55,28 +55,6 @@ export function bytesToHex (bytes : Uint8Array) : string {
   return chars
 }
 
-export function bytesToJson <T = any> (
-  bytes : Uint8Array
-) : T {
-  const str = bytesToStr(bytes)
-  return JSON.parse(str, (_, v) => {
-    return typeof v === 'string' && /n$/.test(v)
-      ? BigInt(v.slice(0, -1))
-      : v
-  })
-}
-
-export function jsonToBytes <T = any> (
-  obj : T | string
-) : Uint8Array {
-  const str = JSON.stringify(obj, (_, v) => {
-    return typeof v === 'bigint'
-      ? `${v}n`
-      : v
-  })
-  return strToBytes(str)
-}
-
 export const Hex = {
   encode : bytesToHex,
   decode : hexToBytes
