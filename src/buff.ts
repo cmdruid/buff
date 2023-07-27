@@ -105,15 +105,15 @@ export class Buff extends Uint8Array {
     return fmt.bytesToNum(bytes)
   }
 
-  toBin () : string {
-    return fmt.bytesToBin(this)
-  }
-
   toBig (endian : Endian = 'be') : bigint {
     const bytes = (endian === 'be')
       ? this.reverse()
       : this
     return fmt.bytesToBig(bytes)
+  }
+
+  toBin () : string {
+    return fmt.bytesToBin(this)
   }
 
   toHash () : Buff {
@@ -144,12 +144,17 @@ export class Buff extends Uint8Array {
   toBase64 () : string     { return Encoder.base64.encode(this) }
   toB64url () : string     { return Encoder.b64url.encode(this) }
 
+  append (data : Bytes) : Buff {
+    return Buff.join([ this, Buff.bytes(data) ])
+  }
+
   prepend (data : Bytes) : Buff {
     return Buff.join([ Buff.bytes(data), this ])
   }
 
-  append (data : Bytes) : Buff {
-    return Buff.join([ this, Buff.bytes(data) ])
+  reverse () : Buff {
+    const arr = new Uint8Array(this).reverse()
+    return new Buff(arr)
   }
 
   slice (start ?: number, end ?: number) : Buff {
@@ -157,13 +162,12 @@ export class Buff extends Uint8Array {
     return new Buff(arr)
   }
 
-  subarray (begin ?: number, end ?: number) : Buff {
-    const arr = new Uint8Array(this).subarray(begin, end)
-    return new Buff(arr)
+  set (array : ArrayLike<number>, offset ?: number) : void {
+    this.set(array, offset)
   }
 
-  reverse () : Buff {
-    const arr = new Uint8Array(this).reverse()
+  subarray (begin ?: number, end ?: number) : Buff {
+    const arr = new Uint8Array(this).subarray(begin, end)
     return new Buff(arr)
   }
 
@@ -262,13 +266,12 @@ function hexToBuff (
 
 function jsonToBuff <T> (
   data      : T,
-  replacer ?: Replacer,
-  space    ?: number
+  replacer ?: Replacer
 ) : Buff {
   if (replacer === undefined) {
     replacer = util.bigint_replacer
   }
-  const str = JSON.stringify(data, replacer, space)
+  const str = JSON.stringify(data, replacer)
   return new Buff(fmt.strToBytes(str))
 }
 
