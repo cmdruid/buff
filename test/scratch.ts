@@ -1,6 +1,6 @@
 import { Buff } from '../src/index.js'
 
-const test_str = `https://some_domain/.well-known/lnurlp/user`
+const test_str = 'https://walletofsatoshi.com/.well-known/lnurlp/jeeringmarch53'
 
 const encoded = Buff.str(test_str).toBech32('lnurl')
 

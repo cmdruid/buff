@@ -108,13 +108,13 @@ bytes
 /* There are a few export methods that support extra params. */
 
 bytes
-  .toNum     : (endian ?: Endian)    => number
-  .toBig     : (endian ?: Endian)    => bigint
-  .toBin     : ()                    => string
-  .toHash    : ()                    => Buff
-  .toJson    : (reviver ?: Reviver)  => T
-  .toBech32  : (prefix : string)     => string
-  .toBech32m : (prefix : string)     => string
+  .toNum     : (endian ?: Endian)                  => number
+  .toBig     : (endian ?: Endian)                  => bigint
+  .toBin     : ()                                  => string
+  .toHash    : ()                                  => Buff
+  .toJson    : (reviver ?: Reviver)                => T
+  .toBech32  : (prefix : string, limit ?: number)  => string
+  .toBech32m : (prefix : string, limit ?: number)  => string
 ```
 
 In addition to format conversion, you can perform many other convenient tasks.

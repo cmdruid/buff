@@ -129,12 +129,18 @@ export class Buff extends Uint8Array {
     return JSON.parse(str, reviver)
   }
 
-  toBech32 (prefix : string) : string {
-    return Encoder.bech32.encode(prefix, this)
+  toBech32 (
+    prefix : string,
+    limit ?: number
+  ) : string {
+    return Encoder.bech32.encode(prefix, this, limit)
   }
 
-  toBech32m (prefix : string) : string {
-    return Encoder.bech32m.encode(prefix, this)
+  toBech32m (
+    prefix : string,
+    limit ?: number
+  ) : string {
+    return Encoder.bech32m.encode(prefix, this, limit)
   }
 
   toStr    () : string     { return fmt.bytesToStr(this) }

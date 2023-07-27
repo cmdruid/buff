@@ -24,10 +24,18 @@ export const Encoder = {
   bech32: {
     into_words : bech32.toWords,
     from_words : bech32.fromWords,
-    encode     : (prefix : string, data : Uint8Array) => {
-      return bech32.encode(prefix, bech32.toWords(data))
+
+    encode: (
+      prefix : string,
+      data   : Uint8Array,
+      limit  : number | false = false
+    ) => {
+      return bech32.encode(prefix, bech32.toWords(data), limit)
     },
-    decode: (data : string, limit ?: number | false) => {
+    decode: (
+      data  : string,
+      limit : number | false = false
+    ) => {
       const { prefix, words } = bech32.decode(data, limit)
       return { prefix, words, bytes: bech32.fromWords(words) }
     }
@@ -35,10 +43,18 @@ export const Encoder = {
   bech32m: {
     into_words : bech32m.toWords,
     from_words : bech32m.fromWords,
-    encode     : (prefix : string, data : Uint8Array) => {
-      return bech32m.encode(prefix, bech32m.toWords(data))
+
+    encode: (
+      prefix : string,
+      data   : Uint8Array,
+      limit  : number | false = false
+    ) => {
+      return bech32m.encode(prefix, bech32m.toWords(data), limit)
     },
-    decode: (data : string, limit ?: number | false) => {
+    decode: (
+      data  : string,
+      limit : number | false = false
+    ) => {
       const { prefix, words } = bech32m.decode(data, limit)
       return { prefix, words, bytes: bech32m.fromWords(words) }
     }
