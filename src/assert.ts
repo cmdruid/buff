@@ -29,3 +29,12 @@ export function is_safe_num (num : number) : void {
     throw new TypeError('Number exceeds safe bounds!')
   }
 }
+
+export function is_prefix (
+  actual : string,
+  target : string
+) : void {
+  if (actual !== target) {
+    throw new TypeError(`Bech32 prefix does not match: ${actual} !== ${target}`)
+  }
+}

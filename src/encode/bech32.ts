@@ -202,13 +202,13 @@ function b32decode (
   str = str.toLowerCase()
   const hrp = str.split('1', 1)[0]
   const [ hrpgot, data ] = decode(str)
-  const decoded = convertBits(data.slice(1), 5, 8, false)
+  const decoded = convertBits(data.slice(1), 5, 8)
   const length = decoded.length
 
   switch (true) {
     case (hrp !== hrpgot):
       throw new Error('Returned hrp string is invalid.')
-    case (decoded === null || length < 2 || length > 40):
+    case (decoded === null || length < 2):
       throw new Error('Decoded string is invalid or out of spec.')
     case (data[0] > 16):
       throw new Error('Returned version bit is out of range.')

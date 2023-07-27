@@ -1,32 +1,16 @@
 import { Test }  from 'tape'
-import { Hex }   from '../../src/index.js'
+
+import {
+  Encoder,
+  Hex
+} from '../../src/index.js'
+
 import * as util from '../../src/utils.js'
 
-import { Base58, B58CHK } from '../../src/index.js'
-
-import test_vectors from './vectors/basex.json' assert { type: 'json' }
+const { b58chk } = Encoder
 
 export default function base58Test(t : Test) {
-  t.test('Base58 test vectors', t => {
-    const vectors = test_vectors.base58
-    t.plan(vectors.length * 2)
-    for (const [ dec, enc ] of vectors) {
-      try {
-        const encoded = Base58.encode(Hex.decode(dec))
-        t.equal(encoded, enc, 'Encodings should match.')
-      } catch(err) {
-        t.fail(err.message)
-      }
-      try {
-        const decoded = Hex.encode(Base58.decode(enc))
-        t.equal(decoded, dec, 'Decodings should match.')
-      } catch(err) {
-        t.fail(err.message)
-      }
-    }
-  })
-
-  t.test('Base58 stress test', t => {
+  t.test('Base58 Check stress test', t => {
     const rounds  = 1000
     const results : string[][] = []
 
@@ -34,8 +18,8 @@ export default function base58Test(t : Test) {
 
     for (let i = 0; i < rounds; i++) {
       const random  = util.random(32)
-      const encoded = B58CHK.encode(random)
-      const decoded = B58CHK.decode(encoded)
+      const encoded = b58chk.encode(random)
+      const decoded = b58chk.decode(encoded)
       results.push([ Hex.encode(decoded), Hex.encode(random) ])
     }
 

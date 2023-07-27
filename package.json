@@ -51,6 +51,7 @@
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-terser": "^0.4.1",
     "@rollup/plugin-typescript": "^9.0.2",
+    "@scure/base": "^1.1.1",
     "@types/tape": "^4.13.2",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "eslint": "^8.31.0",

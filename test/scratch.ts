@@ -1,8 +1,8 @@
 import { Buff } from '../src/index.js'
 
-const u8 = new Uint8Array([ 1, 2 ,3 ,4 ]).buffer
+const test_str = `https://some_domain/.well-known/lnurlp/user`
 
-console.log(u8)
+const encoded = Buff.str(test_str).toBech32('lnurl')
 
-console.log(Array.isArray(u8))
+console.log(encoded)
 

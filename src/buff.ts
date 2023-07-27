@@ -1,26 +1,27 @@
-import { sha256 }         from '@noble/hashes/sha256'
-import { Bech32 }         from './encode/bech32.js'
-import { B58CHK }         from './encode/base58.js'
-import { Base64, B64URL } from './encode/base64.js'
-import { Bytes, Endian }  from './types.js'
-import * as fmt           from './format/index.js'
-import * as util          from './utils.js'
+import { sha256 }        from '@noble/hashes/sha256'
+import { Encoder }       from './encode.js'
+import { Bytes, Endian } from './types.js'
+
+import * as assert       from './assert.js'
+import * as fmt          from './format/index.js'
+import * as util         from './utils.js'
 
 export class Buff extends Uint8Array {
-  static num    = numToBuff
-  static big    = bigToBuff
-  static bin    = binToBuff
-  static raw    = rawToBuff
-  static str    = strToBuff
-  static hex    = hexToBuff
-  static bytes  = buffer
-  static json   = jsonToBuff
-  static base64 = base64ToBuff
-  static b64url = b64urlToBuff
-  static bech32 = bech32ToBuff
-  static b58chk = b58chkToBuff
-  static encode = fmt.strToBytes
-  static decode = fmt.bytesToStr
+  static num     = numToBuff
+  static big     = bigToBuff
+  static bin     = binToBuff
+  static raw     = rawToBuff
+  static str     = strToBuff
+  static hex     = hexToBuff
+  static bytes   = buffer
+  static json    = jsonToBuff
+  static base64  = base64ToBuff
+  static b64url  = b64urlToBuff
+  static bech32  = bech32ToBuff
+  static bech32m = bech32mToBuff
+  static b58chk  = b58chkToBuff
+  static encode  = fmt.strToBytes
+  static decode  = fmt.bytesToStr
 
   static random (size = 32) : Buff {
     const rand = util.random(size)
@@ -123,16 +124,20 @@ export class Buff extends Uint8Array {
     return JSON.parse(str)
   }
 
-  toBech32 (hrp : string, version = 0) : string {
-    return Bech32.encode(this, hrp, version)
+  toBech32 (prefix : string) : string {
+    return Encoder.bech32.encode(prefix, this)
   }
 
-  toStr    () : string     { return fmt.bytesToStr(this)    }
-  toHex    () : string     { return fmt.bytesToHex(this)    }
-  toBytes  () : Uint8Array { return new Uint8Array(this)    }
-  tob58chk () : string     { return B58CHK.encode(this)    }
-  toBase64 () : string     { return Base64.encode(this)     }
-  toB64url () : string     { return B64URL.encode(this)     }
+  toBech32m (prefix : string) : string {
+    return Encoder.bech32m.encode(prefix, this)
+  }
+
+  toStr    () : string     { return fmt.bytesToStr(this) }
+  toHex    () : string     { return fmt.bytesToHex(this) }
+  toBytes  () : Uint8Array { return new Uint8Array(this) }
+  tob58chk () : string     { return Encoder.b58chk.encode(this) }
+  toBase64 () : string     { return Encoder.base64.encode(this) }
+  toB64url () : string     { return Encoder.b64url.encode(this) }
 
   prepend (data : Bytes) : Buff {
     return Buff.join([ Buff.bytes(data), this ])
@@ -259,25 +264,43 @@ function jsonToBuff <T> (
 function base64ToBuff (
   data : string
 ) : Buff {
-  return new Buff(Base64.decode(data))
+  return new Buff(Encoder.base64.decode(data))
 }
 
 function b64urlToBuff (
   data : string
 ) : Buff {
-  return new Buff(B64URL.decode(data))
+  return new Buff(Encoder.b64url.decode(data))
 }
 
 function bech32ToBuff (
-  data : string
+  data        : string,
+  limit      ?: number | false,
+  chk_prefix ?: string
 ) : Buff {
-  return new Buff(Bech32.decode(data))
+  const { bytes, prefix } = Encoder.bech32.decode(data, limit)
+  if (typeof chk_prefix === 'string') {
+    assert.is_prefix(prefix, chk_prefix)
+  }
+  return new Buff(bytes)
+}
+
+function bech32mToBuff (
+  data        : string,
+  limit      ?: number | false,
+  chk_prefix ?: string
+) : Buff {
+  const { bytes, prefix } = Encoder.bech32m.decode(data, limit)
+  if (typeof chk_prefix === 'string') {
+    assert.is_prefix(prefix, chk_prefix)
+  }
+  return new Buff(bytes)
 }
 
 function b58chkToBuff (
   data : string
 ) : Buff {
-  return new Buff(B58CHK.decode(data))
+  return new Buff(Encoder.b58chk.decode(data))
 }
 
 export class Stream {
