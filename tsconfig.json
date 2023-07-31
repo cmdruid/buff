@@ -11,11 +11,7 @@
   "compilerOptions": {
     "module": "ES2022",
     "target": "ES2022",
-    "moduleResolution": "Node",
-    "baseUrl": "src",
-    "paths": {
-      "@/*": ["./*"]
-    },
+    "moduleResolution": "NodeNext",
     "rootDir": "./src",
     "outDir": "./dist",
     "sourceMap": true,
@@ -47,6 +43,6 @@
     "rollup.config.ts"
   ],
   "include": [
-    "src/**/*.ts", "test/old/prng.ts", "test/old/ripemd.ts",
+    "src/**/*.ts",
   ]
 }
