@@ -1,7 +1,7 @@
 {
   "name": "@cmdcode/buff-utils",
   "type": "module",
-  "version": "1.11.7",
+  "version": "1.11.8",
   "description": "Cross-platform library for working with buffers and moving between formats.",
   "author": "Christopher Scott",
   "license": "CC-BY-1.0",
@@ -43,13 +43,14 @@
   "main": "./dist/main.cjs",
   "unpkg": "./dist/browser.js",
   "scripts": {
-    "build": "yarn clean && yarn types && rollup -c rollup.config.ts --configPlugin typescript",
+    "build": "yarn clean && yarn types && yarn rollup",
     "clean": "rm -rf dist/* coverage .nyc_output",
-    "scratch": "node --loader ts-node/esm --no-warnings test/scratch.ts",
+    "scratch": "tsx test/scratch.ts",
     "lint": "eslint . --ext .ts",
     "fix": "eslint --fix . --ext .ts",
-    "tape": "node --loader ts-node/esm --no-warnings test/index.ts",
-    "test": "nyc --reporter=lcov --require ts-node/register yarn tape | tap-spec; nyc report ---reporter=text",
+    "rollup": "rollup -c rollup.config.ts --configPlugin typescript",
+    "tape": "tsx test/index.ts",
+    "test": "nyc --reporter=lcov yarn tape | tap-spec; nyc report ---reporter=text",
     "types": "tsc",
     "release": "yarn test && yarn lint && yarn build"
   },
@@ -74,7 +75,7 @@
     "rollup": "^3.27.0",
     "tap-spec": "^5.0.0",
     "tape": "^5.6.6",
-    "ts-node": "^10.9.1",
+    "tsx": "^3.12.7",
     "typescript": "^5.1.6"
   }
 }
