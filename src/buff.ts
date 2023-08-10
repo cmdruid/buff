@@ -24,6 +24,7 @@ export class Buff extends Uint8Array {
   static b58chk  = b58chkToBuff
   static encode  = fmt.strToBytes
   static decode  = fmt.bytesToStr
+  static parse   = parse_data
 
   static random (size = 32) : Buff {
     const rand = util.random(size)
@@ -321,6 +322,16 @@ function b58chkToBuff (
   data : string
 ) : Buff {
   return new Buff(Encoder.b58chk.decode(data))
+}
+
+function parse_data (
+  data_blob  : Bytes,
+  chunk_size : number,
+  total_size : number
+) : Buff[] {
+  const bytes  = fmt.buffer_data(data_blob)
+  const chunks = util.parse_data(bytes, chunk_size, total_size)
+  return chunks.map(e => Buff.bytes(e))
 }
 
 export class Stream {

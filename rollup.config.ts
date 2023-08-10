@@ -10,7 +10,7 @@ const treeshake = {
 	tryCatchDeoptimization  : false
 }
 
-const onwarn = warning => { throw new Error(warning) }
+const onwarn = (warning) => { throw new Error(warning) }
 
 const tsConfig = { 
   compilerOptions: {

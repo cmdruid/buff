@@ -1,17 +1,9 @@
 {
-  "ts-node": {
-    "transpileOnly": true,
-    "files": true,
-    "esm": true,
-    "compilerOptions": {
-      "module": "ES2022"
-    },
-    "include": ["test/**/*.test.ts"]
-  },
   "compilerOptions": {
-    "module": "ES2022",
-    "target": "ES2022",
-    "moduleResolution": "NodeNext",
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "bundler",
     "rootDir": "./src",
     "outDir": "./dist",
     "sourceMap": true,
@@ -37,12 +29,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "exclude": [
-    "node_modules",
-    "test",
-    "rollup.config.ts"
-  ],
-  "include": [
-    "src/**/*.ts",
-  ]
+  "exclude": [ "node_modules", "test", "rollup.config.ts" ],
+  "include": ["src/**/*.ts" ]
 }

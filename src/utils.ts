@@ -48,3 +48,27 @@ export function bigint_reviver (_ : any, v : any) : any {
     ? BigInt(v.slice(0, -1))
     : v
 }
+
+export function parse_data (
+  data_blob  : Uint8Array,
+  chunk_size : number,
+  total_size : number
+) : Uint8Array[] {
+  const len   = data_blob.length,
+        count = total_size / chunk_size
+  if (total_size % chunk_size !== 0) {
+    throw new TypeError(`Invalid parameters: ${total_size} % ${chunk_size} !== 0`)
+  }
+  if (len !== total_size) {
+    throw new TypeError(`Invalid data stream: ${len} !== ${total_size}`)
+  }
+  if (len % chunk_size !== 0) {
+    throw new TypeError(`Invalid data stream: ${len} % ${chunk_size} !== 0`)
+  }
+  const chunks = new Array(count)
+  for (let i = 0; i < count; i++) {
+    const idx = i * chunk_size
+    chunks[i] = data_blob.subarray(idx, idx + chunk_size)
+  }
+  return chunks
+}
