@@ -1,7 +1,7 @@
 {
   "name": "@cmdcode/buff-utils",
   "type": "module",
-  "version": "1.12.1",
+  "version": "1.12.2",
   "description": "Cross-platform library for working with buffers and moving between formats.",
   "author": "Christopher Scott",
   "license": "CC-BY-1.0",
