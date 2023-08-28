@@ -22,41 +22,41 @@ export const Encoder = {
     decode : (data : string)     => base64url.decode(data)
   },
   bech32: {
-    into_words : bech32.toWords,
-    from_words : bech32.fromWords,
+    to_words : bech32.toWords,
+    to_bytes : bech32.fromWords,
 
     encode: (
       prefix : string,
-      data   : Uint8Array,
+      words  : number[],
       limit  : number | false = false
     ) => {
-      return bech32.encode(prefix, bech32.toWords(data), limit)
+      return bech32.encode(prefix, words, limit)
     },
     decode: (
       data  : string,
       limit : number | false = false
     ) => {
       const { prefix, words } = bech32.decode(data, limit)
-      return { prefix, words, bytes: bech32.fromWords(words) }
+      return { prefix, words }
     }
   },
   bech32m: {
-    into_words : bech32m.toWords,
-    from_words : bech32m.fromWords,
+    to_words : bech32m.toWords,
+    to_bytes : bech32m.fromWords,
 
     encode: (
       prefix : string,
-      data   : Uint8Array,
+      words  : number[],
       limit  : number | false = false
     ) => {
-      return bech32m.encode(prefix, bech32m.toWords(data), limit)
+      return bech32m.encode(prefix, words, limit)
     },
     decode: (
       data  : string,
       limit : number | false = false
     ) => {
       const { prefix, words } = bech32m.decode(data, limit)
-      return { prefix, words, bytes: bech32m.fromWords(words) }
+      return { prefix, words }
     }
   }
 }

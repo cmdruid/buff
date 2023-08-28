@@ -10,6 +10,14 @@ export function random (size = 32) : Uint8Array {
   throw new Error('Crypto module missing getRandomValues!')
 }
 
+export function is_hex (input : string) : boolean {
+  if (
+    input.match(/[^a-fA-f0-9]/) === null &&
+    input.length % 2 === 0
+  ) { return true }
+  return false
+}
+
 export function set_buffer (
   data   : number[] | Uint8Array,
   size  ?: number,

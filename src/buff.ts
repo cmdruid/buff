@@ -9,26 +9,32 @@ import * as util         from './utils.js'
 type Reviver = (this : any, key : string, value : any) => any
 
 export class Buff extends Uint8Array {
-  static num     = numToBuff
-  static big     = bigToBuff
-  static bin     = binToBuff
-  static raw     = rawToBuff
-  static str     = strToBuff
-  static hex     = hexToBuff
-  static bytes   = buffer
-  static json    = jsonToBuff
-  static base64  = base64ToBuff
-  static b64url  = b64urlToBuff
-  static bech32  = bech32ToBuff
-  static bech32m = bech32mToBuff
-  static b58chk  = b58chkToBuff
-  static encode  = fmt.strToBytes
-  static decode  = fmt.bytesToStr
-  static parse   = parse_data
+  static num      = numToBuff
+  static big      = bigToBuff
+  static bin      = binToBuff
+  static raw      = rawToBuff
+  static str      = strToBuff
+  static hex      = hexToBuff
+  static bytes    = buffer
+  static json     = jsonToBuff
+  static base64   = base64ToBuff
+  static b64url   = b64urlToBuff
+  static bech32   = bech32ToBuff
+  static bech32m  = bech32mToBuff
+  static b58chk   = b58chkToBuff
+  static encode   = fmt.strToBytes
+  static decode   = fmt.bytesToStr
+  static parse    = parse_data
+  static is_bytes = is_bytes
 
   static random (size = 32) : Buff {
     const rand = util.random(size)
     return new Buff(rand, size)
+  }
+
+  static now (size = 4) : Buff {
+    const stamp = Math.floor(Date.now() / 1000)
+    return new Buff(stamp, size)
   }
 
   constructor (
@@ -134,14 +140,18 @@ export class Buff extends Uint8Array {
     prefix : string,
     limit ?: number
   ) : string {
-    return Encoder.bech32.encode(prefix, this, limit)
+    const { encode, to_words } = Encoder.bech32
+    const words = to_words(this)
+    return encode(prefix, words, limit)
   }
 
   toBech32m (
     prefix : string,
     limit ?: number
   ) : string {
-    return Encoder.bech32m.encode(prefix, this, limit)
+    const { encode, to_words } = Encoder.bech32m
+    const words = to_words(this)
+    return encode(prefix, words, limit)
   }
 
   toStr    () : string     { return fmt.bytesToStr(this) }
@@ -299,7 +309,9 @@ function bech32ToBuff (
   limit      ?: number | false,
   chk_prefix ?: string
 ) : Buff {
-  const { bytes, prefix } = Encoder.bech32.decode(data, limit)
+  const { decode, to_bytes } = Encoder.bech32
+  const { prefix, words } = decode(data, limit)
+  const bytes = to_bytes(words)
   if (typeof chk_prefix === 'string') {
     assert.is_prefix(prefix, chk_prefix)
   }
@@ -311,7 +323,9 @@ function bech32mToBuff (
   limit      ?: number | false,
   chk_prefix ?: string
 ) : Buff {
-  const { bytes, prefix } = Encoder.bech32m.decode(data, limit)
+  const { decode, to_bytes } = Encoder.bech32m
+  const { prefix, words } = decode(data, limit)
+  const bytes = to_bytes(words)
   if (typeof chk_prefix === 'string') {
     assert.is_prefix(prefix, chk_prefix)
   }
@@ -332,6 +346,28 @@ function parse_data (
   const bytes  = fmt.buffer_data(data_blob)
   const chunks = util.parse_data(bytes, chunk_size, total_size)
   return chunks.map(e => Buff.bytes(e))
+}
+
+function is_bytes (input : any) : input is Bytes {
+  if (
+    typeof input === 'string' &&
+    util.is_hex(input)
+  ) {
+    return true
+  } else if (
+    typeof input === 'number' ||
+    typeof input === 'bigint' ||
+    input instanceof Uint8Array
+  ) {
+    return true
+  } else if (
+    Array.isArray(input) &&
+    input.every(e => typeof e === 'number')
+  ) {
+    return true
+  } else  {
+    return false
+  }
 }
 
 export class Stream {

@@ -67,15 +67,21 @@ export default function bech32Test(t : Test) {
     const results :string[][] = []
 
     for (let i = 0; i < rounds; i++) {
-      const random  = util.random(32)
       const version = Math.floor(Math.random())
+      const random  = util.random(32)
+      const words = (version === 1)
+        ? bech32m.to_words(random)
+        : bech32.to_words(random)
       const encoded = (version === 1)
-        ? bech32m.encode('bc', random)
-        : bech32.encode('bc', random)
+        ? bech32m.encode('bc', words)
+        : bech32.encode('bc', words)
       const decoded = (version === 1)
         ? bech32m.decode(encoded)
         : bech32.decode(encoded)
-      results.push([ Hex.encode(decoded.bytes), Hex.encode(random) ])
+      const bytes = (version === 1)
+        ? bech32m.to_bytes(decoded.words)
+        : bech32.to_bytes(decoded.words)
+      results.push([ Hex.encode(bytes), Hex.encode(random) ])
     }
 
     const failures = results.filter(([ t, e ]) => t !== e)

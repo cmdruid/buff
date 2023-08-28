@@ -12,29 +12,18 @@ export function buffer_data (
 ) : Uint8Array {
   if (data instanceof ArrayBuffer) {
     return new Uint8Array(data)
-  }
-  if (data instanceof Uint8Array) {
+  } else if (data instanceof Uint8Array) {
     return util.set_buffer(data, size, endian)
-  }
-  if (Array.isArray(data)) {
-    try {
-      const arr = data.map(e => buffer_data(e, size, endian))
-      return util.join_array(arr)
-    } catch (err) {
-      const { message } = err as Error
-      throw new TypeError('Invalid data caught in array.' + message)
-    }
-  }
-  if (typeof data === 'string') {
+  } else if (Array.isArray(data)) {
+    const bytes = data.map(e => buffer_data(e, size, endian))
+    return util.join_array(bytes)
+  } else if (typeof data === 'string') {
     return hexToBytes(data, size, endian)
-  }
-  if (typeof data === 'bigint') {
-      return bigToBytes(data, size, endian)
-  }
-  if (typeof data === 'number') {
+  } else if (typeof data === 'bigint') {
+    return bigToBytes(data, size, endian)
+  } else if (typeof data === 'number') {
     return numToBytes(data, size, endian)
-  }
-  if (typeof data === 'boolean') {
+  } else if (typeof data === 'boolean') {
     return Uint8Array.of(data ? 1 : 0)
   }
   throw new TypeError('Unsupported format:' + String(typeof data))
