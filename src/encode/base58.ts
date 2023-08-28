@@ -4,7 +4,7 @@ import { join_array } from '../utils.js'
 const ec = new TextEncoder()
 
 interface Alphabet {
-  name    : string
+  name : string
   charset : string
 }
 

@@ -1,6 +1,6 @@
 import { sha256 }        from '@noble/hashes/sha256'
 import { Encoder }       from './encode.js'
-import { Bytes, Endian, Replacer } from './types.js'
+import { type Bytes, type Endian, type Replacer } from './types.js'
 
 import * as assert       from './assert.js'
 import * as fmt          from './format/index.js'

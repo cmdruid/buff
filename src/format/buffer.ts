@@ -1,7 +1,7 @@
 import { bigToBytes }    from './big.js'
 import { numToBytes }    from './num.js'
 import { hexToBytes }    from './str.js'
-import { Bytes, Endian } from '../types.js'
+import { type Bytes, type Endian } from '../types.js'
 
 import * as util from '../utils.js'
 

@@ -1,5 +1,5 @@
 import { is_hex } from '../assert.js'
-import { Endian } from '../types.js'
+import { type Endian } from '../types.js'
 
 const ec  = new TextEncoder()
 const dc  = new TextDecoder()

@@ -1,5 +1,5 @@
 import { within_size } from './assert.js'
-import { Endian }      from './types.js'
+import { type Endian }      from './types.js'
 
 const { getRandomValues } = crypto ?? globalThis.crypto ?? window.crypto
 

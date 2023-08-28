@@ -1,4 +1,4 @@
-import { Endian }      from '../types.js'
+import { type Endian }      from '../types.js'
 import { is_safe_num } from '../assert.js'
 
 function num_size (

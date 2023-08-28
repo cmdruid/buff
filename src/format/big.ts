@@ -1,4 +1,4 @@
-import { Endian } from '../types.js'
+import { type Endian } from '../types.js'
 
 const _0n   = BigInt(0)
 const _255n = BigInt(255)

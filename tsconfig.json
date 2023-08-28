@@ -1,16 +1,14 @@
 {
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
-    "module": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "target": "ESNext",
-    "moduleResolution": "bundler",
     "rootDir": "./src",
     "outDir": "./dist",
     "sourceMap": true,
     "declaration": true,
-    "declarationDir": "./dist/types",
     "declarationMap": true,
-    "emitDeclarationOnly": true,
     "importHelpers": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
