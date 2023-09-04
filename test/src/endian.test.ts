@@ -21,11 +21,11 @@ export default function endian_test(t : Test) {
     const hex_be_to_raw = buffer(hex_be).raw
     const hex_le_to_raw = buffer(hex_le).raw
 
-    const raw_be_to_num = Buff.raw(raw_be).toNum('be')
-    const raw_le_to_num = Buff.raw(raw_le).toNum('le')
+    const raw_be_to_num = Buff.raw(raw_be).to_num('be')
+    const raw_le_to_num = Buff.raw(raw_le).to_num('le')
 
-    const raw_be_to_big = Buff.raw(raw_be).toBig('be')
-    const raw_le_to_big = Buff.raw(raw_le).toBig('le')
+    const raw_be_to_big = Buff.raw(raw_be).to_big('be')
+    const raw_le_to_big = Buff.raw(raw_le).to_big('le')
 
     const raw_be_to_hex = Buff.raw(raw_be).hex
     const raw_le_to_hex = Buff.raw(raw_le).hex

@@ -39,19 +39,19 @@ export default function parity_test (t : Test) {
     const buff_hex_to_bytes    = Buff.hex(thex).raw
     const nobl_hex_to_bytes    = hexToBytes(thex)
     // Bytes to number LE conversion.
-    const buff_bytes_to_num_le = Buff.raw(buff_num_to_bytes_le).toNum('le')
+    const buff_bytes_to_num_le = Buff.raw(buff_num_to_bytes_le).to_num('le')
     const nobl_bytes_to_num_le = Number(bytesToNumberLE(nobl_num_to_bytes_le))
     // Bytes to number BE conversion.
-    const buff_bytes_to_num_be = Buff.raw(buff_num_to_bytes_be).toNum('be')
+    const buff_bytes_to_num_be = Buff.raw(buff_num_to_bytes_be).to_num('be')
     const nobl_bytes_to_num_be = Number(bytesToNumberBE(nobl_num_to_bytes_be))
     // Bytes to bigint LE conversion.
-    const buff_bytes_to_big_le = Buff.raw(buff_big_to_bytes_le).toBig('le')
+    const buff_bytes_to_big_le = Buff.raw(buff_big_to_bytes_le).to_big('le')
     const nobl_bytes_to_big_le = bytesToNumberLE(nobl_big_to_bytes_le)
     // Bytes to bigint BE conversion.
-    const buff_bytes_to_big_be = Buff.raw(buff_big_to_bytes_be).toBig('be')
+    const buff_bytes_to_big_be = Buff.raw(buff_big_to_bytes_be).to_big('be')
     const nobl_bytes_to_big_be = bytesToNumberBE(nobl_big_to_bytes_be)
     // Bytes to hex conversion.
-    const buff_bytes_to_hex    = Buff.raw(buff_hex_to_bytes).toHex()
+    const buff_bytes_to_hex    = Buff.raw(buff_hex_to_bytes).to_hex()
     const nobl_bytes_to_hex    = bytesToHex(nobl_hex_to_bytes)
 
     const buff_concat = Buff.join([

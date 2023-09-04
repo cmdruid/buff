@@ -1,5 +1,5 @@
-import { within_size } from './assert.js'
-import { type Endian }      from './types.js'
+import { within_size }   from './assert.js'
+import { Endian, Bytes } from './types.js'
 
 const { getRandomValues } = crypto ?? globalThis.crypto ?? window.crypto
 
@@ -16,6 +16,28 @@ export function is_hex (input : string) : boolean {
     input.length % 2 === 0
   ) { return true }
   return false
+}
+
+export function is_bytes (input : any) : input is Bytes {
+  if (
+    typeof input === 'string' &&
+    is_hex(input)
+  ) {
+    return true
+  } else if (
+    typeof input === 'number' ||
+    typeof input === 'bigint' ||
+    input instanceof Uint8Array
+  ) {
+    return true
+  } else if (
+    Array.isArray(input) &&
+    input.every(e => typeof e === 'number')
+  ) {
+    return true
+  } else  {
+    return false
+  }
 }
 
 export function set_buffer (
