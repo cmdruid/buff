@@ -1,8 +1,8 @@
 {
-  "name": "@cmdcode/buff-utils",
+  "name": "@cmdcode/buff",
   "type": "module",
   "version": "2.0.0",
-  "description": "Cross-platform library for working with buffers and moving between formats.",
+  "description": "The swiss-army-knife of byte manipulation.",
   "author": "Christopher Scott",
   "license": "CC-BY-1.0",
   "keywords": [
@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/cmdruid/buff-utils.git"
+    "url": "https://github.com/cmdruid/buff.git"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
@@ -39,11 +39,11 @@
   "main": "./dist/main.cjs",
   "unpkg": "./dist/browser.js",
   "scripts": {
-    "build": "yarn clean && rollup -c rollup.config.ts --configPlugin typescript",
+    "build": "rollup -c rollup.config.ts --configPlugin typescript",
     "clean": "rm -rf dist/* coverage .nyc_output",
     "scratch": "tsx test/scratch.ts",
-    "test": "nyc --reporter=lcov tsx test/tape.ts | tap-spec; nyc report ---reporter=text",
-    "release": "yarn test && yarn build"
+    "test": "tsx test/tape.ts | tap-spec",
+    "release": "yarn clean && yarn test && yarn build"
   },
   "devDependencies": {
     "@noble/curves": "^1.1.0",
@@ -55,7 +55,6 @@
     "@scure/base": "^1.1.1",
     "@types/node": "^20.5.7",
     "@types/tape": "^5.6.0",
-    "nyc": "^15.1.0",
     "rollup": "^3.27.0",
     "tap-spec": "^5.0.0",
     "tape": "^5.6.6",

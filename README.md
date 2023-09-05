@@ -1,44 +1,44 @@
-# Buff Utils
+# buff
 
 The swiss-army-knife of byte manipulation.
 
 Features:
- * Move between all data formats with ease!
+ * Move between data formats with ease!
  * Encode / decode between Base58, Base64, Bech32 and more.
- * Buffer object recognized as native Uint8Array.
+ * `Buff` object recognized as native `Uint8Array`.
  * Prepend, append, sort, split and join arrays of multiple formats.
  * Read and prefix varints.
- * Convert byte blobs into consumable streams.
+ * Convert blobs of data into consumable streams.
  * Uses `DataView.setUint8` for ultra-fast performace.
  * Supports endianess for all the things!
 
-## Import
+## How to Import
 
 Example import into a browser-based project:
 
 ```html
-<script src="https://unpkg.com/@cmdcode/buff-utils/dist/browser.js"></script>
-<script> const { Buff, Bytes } = window.buff_utils </script>
+<script src="https://unpkg.com/@cmdcode/buff/dist/browser.js"></script>
+<script> const { Buff, Bytes } = window.buff </script>
 ```
 
 Example import into a commonjs project:
 
 ```ts
-const { Buff, Bytes } = require('@cmdcode/buff-utils')
+const { Buff, Bytes } = require('@cmdcode/buff')
 ```
 
 Example import into an ES module project:
 
 ```ts
-import { Buff, Bytes } from '@cmdcode/buff-utils'
+import { Buff, Bytes } from '@cmdcode/buff'
 ```
 
 ## How to Use
 
-The `Buff` class is an extention of the base Uint8Array class. It provides the same default functionality of a Uint8Array, and can be used as a drop-in replacement for Uint8Array. Typescript will treat Buff as a Uint8Array object.
+The `Buff` class is an extention of the base `Uint8Array` class. It provides the same default functionality of a Uint8Array, and can be used as a drop-in replacement for Uint8Array. Typescript will treat Buff as a Uint8Array object.
 
 ```ts
-import { Buff, Bytes } from '@cmdcode/buff-utils'
+import { Buff, Bytes } from '@cmdcode/buff'
 
 // Bytes covers value types that are convertable to Uint8Array.
 type Bytes  = string | number | bigint | Uint8Array | Buff
@@ -163,7 +163,7 @@ bytes
 The `Stream` tool will take a blob of data and allow you to consume it byte-per-byte.
 
 ```ts
-import { Stream } from '@cmdcode/buff-utils'
+import { Stream } from '@cmdcode/buff'
 
 // Convert data into a stream object.
 const stream = new Stream(data)
@@ -185,7 +185,7 @@ A number of utilities are available as stand-alone packages for import.
 ```ts
 import {
   Encoder, Hash, Hex, Txt, assert, buffer, util
-} from '@cmdcode/buff-utils'
+} from '@cmdcode/buff'
 ```
 
 ## Dependencies
@@ -206,22 +206,13 @@ Special thanks to Paul Miller for his wonderful work.
 
 Please feel free to post any questions or bug reports on the issues page!
 
-## Testing
+## Development / Testing
 
-This project uses `tape` for unit tests, and `nyc` for formatting.
-
-```bash
-yarn install && yarn test
-npm  install && npm run test
-```
-
-## Development
-
-This project uses `eslint` and `typescript` for development, plus `rollup` for bundling releases.
+This project uses `eslint` and `typescript` for development, `tape` for unit tests, and `rollup` for bundling releases.
 
 ```bash
-yarn install && yarn release
-npm  install && npm run release
+yarn test    || npm run test
+yarn release || npm run release
 ```
 
 ## Contributions
