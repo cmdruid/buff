@@ -30,7 +30,7 @@ export default {
     {
       file: 'dist/browser.js',
       format: 'iife',
-      name: 'buff_utils',
+      name: 'buff',
       plugins: [terser()],
       sourcemap: true,
       globals: {

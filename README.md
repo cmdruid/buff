@@ -14,23 +14,41 @@ Features:
 
 ## How to Import
 
-Example import into a browser-based project:
+This library is designed to support classic and modern ESM imports, in both a nodejs and browser environment.
 
-```html
-<script src="https://unpkg.com/@cmdcode/buff/dist/browser.js"></script>
-<script> const { Buff, Bytes } = window.buff </script>
+Example install via NPM or yarn:
+
+```bash
+npm install @cmdcode/buff || yarn add @cmdcode/buff
 ```
 
-Example import into a commonjs project:
+Classic import into a nodejs project:
 
 ```ts
 const { Buff, Bytes } = require('@cmdcode/buff')
 ```
 
-Example import into an ES module project:
+Modern import into an nodejs project:
 
 ```ts
 import { Buff, Bytes } from '@cmdcode/buff'
+```
+
+Classic import into a browser-based project:
+
+```html
+<script src="https://unpkg.com/@cmdcode/buff/dist/browser.js"></script>
+<script>
+  const { Buff, Bytes } = window.buff
+</script>
+```
+
+Modern import into a browser-based project:
+
+```html
+<script type="module">
+  import { Buff, Bytes } from "https://unpkg.com/@cmdcode/buff/dist/module.mjs" 
+</script>
 ```
 
 ## How to Use
