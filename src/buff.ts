@@ -26,6 +26,7 @@ export class Buff extends Uint8Array {
   static parse    = parse_data
   static is_bytes = util.is_bytes
   static is_hex   = util.is_hex
+  static is_equal = is_equal
 
   static random (size = 32) : Buff {
     const rand = util.random(size)
@@ -163,6 +164,10 @@ export class Buff extends Uint8Array {
 
   append (data : Bytes) : Buff {
     return Buff.join([ this, Buff.bytes(data) ])
+  }
+
+  equals (data : Bytes) : boolean {
+    return buffer(data).hex === this.hex
   }
 
   prepend (data : Bytes) : Buff {
@@ -348,6 +353,18 @@ function parse_data (
   return chunks.map(e => Buff.bytes(e))
 }
 
+function is_equal (a : Bytes, b : Bytes) : boolean {
+  return new Buff(a).hex === new Buff(b).hex
+}
+
+export function buffer (
+  bytes : Bytes | Bytes[] | ArrayBuffer,
+  size ?: number,
+  end  ?: Endian
+) : Buff {
+  return new Buff(bytes, size, end)
+}
+
 export class Stream {
   public size : number
   public data : Uint8Array
@@ -386,12 +403,4 @@ export class Stream {
         throw new Error(`Varint is out of range: ${num}`)
     }
   }
-}
-
-export function buffer (
-  bytes : Bytes | Bytes[] | ArrayBuffer,
-  size ?: number,
-  end  ?: Endian
-) : Buff {
-  return new Buff(bytes, size, end)
 }
