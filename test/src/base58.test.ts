@@ -1,13 +1,11 @@
 import { Test }  from 'tape'
 
 import {
-  Encoder,
+  B58chk,
   Hex
 } from '../../src/index.js'
 
 import * as util from '../../src/utils.js'
-
-const { b58chk } = Encoder
 
 export default function base58Test(t : Test) {
   t.test('Base58 Check stress test', t => {
@@ -18,8 +16,8 @@ export default function base58Test(t : Test) {
 
     for (let i = 0; i < rounds; i++) {
       const random  = util.random(32)
-      const encoded = b58chk.encode(random)
-      const decoded = b58chk.decode(encoded)
+      const encoded = B58chk.encode(random)
+      const decoded = B58chk.decode(encoded)
       results.push([ Hex.encode(decoded), Hex.encode(random) ])
     }
 

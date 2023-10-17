@@ -198,14 +198,6 @@ stream
   .readSize (endian ?: Endian) => number
 ```
 
-A number of utilities are available as stand-alone packages for import.
-
-```ts
-import {
-  Encoder, Hash, Hex, Txt, assert, buffer, util
-} from '@cmdcode/buff'
-```
-
 ## Dependencies
 
 This library uses minimal dependences.

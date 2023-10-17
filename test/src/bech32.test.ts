@@ -1,7 +1,8 @@
 import { Test } from 'tape'
 
 import {
-  Encoder,
+  Bech32,
+  Bech32m,
   Hex
  } from '../../src/index.js'
 
@@ -9,8 +10,6 @@ import * as util  from '../../src/utils.js'
 
 import pass_vectors from './vectors/bech32.pass.json' assert { type: 'json' }
 import fail_vectors from './vectors/bech32.fail.json' assert { type: 'json' }
-
-const { bech32, bech32m } = Encoder
 
 export default function bech32Test(t : Test) {
 
@@ -70,17 +69,17 @@ export default function bech32Test(t : Test) {
       const version = Math.floor(Math.random())
       const random  = util.random(32)
       const words = (version === 1)
-        ? bech32m.to_words(random)
-        : bech32.to_words(random)
+        ? Bech32m.to_words(random)
+        : Bech32.to_words(random)
       const encoded = (version === 1)
-        ? bech32m.encode('bc', words)
-        : bech32.encode('bc', words)
+        ? Bech32m.encode('bc', words)
+        : Bech32.encode('bc', words)
       const decoded = (version === 1)
-        ? bech32m.decode(encoded)
-        : bech32.decode(encoded)
+        ? Bech32m.decode(encoded)
+        : Bech32.decode(encoded)
       const bytes = (version === 1)
-        ? bech32m.to_bytes(decoded.words)
-        : bech32.to_bytes(decoded.words)
+        ? Bech32m.to_bytes(decoded.words)
+        : Bech32.to_bytes(decoded.words)
       results.push([ Hex.encode(bytes), Hex.encode(random) ])
     }
 

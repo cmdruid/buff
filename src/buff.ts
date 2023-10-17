@@ -1,9 +1,9 @@
 import { sha256 }  from '@noble/hashes/sha256'
-import { Encoder } from './encode.js'
 
-import * as assert from './assert.js'
-import * as fmt    from './format/index.js'
-import * as util   from './utils.js'
+import * as assert  from './assert.js'
+import * as encoder from './encode.js'
+import * as fmt     from './format/index.js'
+import * as util    from './utils.js'
 
 import { Bytes, Endian, Replacer, Reviver } from './types.js'
 
@@ -141,7 +141,7 @@ export class Buff extends Uint8Array {
     prefix : string,
     limit ?: number
   ) : string {
-    const { encode, to_words } = Encoder.bech32
+    const { encode, to_words } = encoder.Bech32
     const words = to_words(this)
     return encode(prefix, words, limit)
   }
@@ -150,7 +150,7 @@ export class Buff extends Uint8Array {
     prefix : string,
     limit ?: number
   ) : string {
-    const { encode, to_words } = Encoder.bech32m
+    const { encode, to_words } = encoder.Bech32m
     const words = to_words(this)
     return encode(prefix, words, limit)
   }
@@ -158,9 +158,9 @@ export class Buff extends Uint8Array {
   to_str    () : string     { return fmt.bytesToStr(this) }
   to_hex    () : string     { return fmt.bytesToHex(this) }
   to_bytes  () : Uint8Array { return new Uint8Array(this) }
-  to_b58chk () : string     { return Encoder.b58chk.encode(this) }
-  to_base64 () : string     { return Encoder.base64.encode(this) }
-  to_b64url () : string     { return Encoder.b64url.encode(this) }
+  to_b58chk () : string     { return encoder.B58chk.encode(this) }
+  to_base64 () : string     { return encoder.Base64.encode(this) }
+  to_b64url () : string     { return encoder.B64url.encode(this) }
 
   append (data : Bytes) : Buff {
     return Buff.join([ this, Buff.bytes(data) ])
@@ -300,13 +300,13 @@ function jsonToBuff <T> (
 function base64ToBuff (
   data : string
 ) : Buff {
-  return new Buff(Encoder.base64.decode(data))
+  return new Buff(encoder.Base64.decode(data))
 }
 
 function b64urlToBuff (
   data : string
 ) : Buff {
-  return new Buff(Encoder.b64url.decode(data))
+  return new Buff(encoder.B64url.decode(data))
 }
 
 function bech32ToBuff (
@@ -314,7 +314,7 @@ function bech32ToBuff (
   limit      ?: number | false,
   chk_prefix ?: string
 ) : Buff {
-  const { decode, to_bytes } = Encoder.bech32
+  const { decode, to_bytes } = encoder.Bech32
   const { prefix, words } = decode(data, limit)
   const bytes = to_bytes(words)
   if (typeof chk_prefix === 'string') {
@@ -328,7 +328,7 @@ function bech32mToBuff (
   limit      ?: number | false,
   chk_prefix ?: string
 ) : Buff {
-  const { decode, to_bytes } = Encoder.bech32m
+  const { decode, to_bytes } = encoder.Bech32m
   const { prefix, words } = decode(data, limit)
   const bytes = to_bytes(words)
   if (typeof chk_prefix === 'string') {
@@ -340,7 +340,7 @@ function bech32mToBuff (
 function b58chkToBuff (
   data : string
 ) : Buff {
-  return new Buff(Encoder.b58chk.decode(data))
+  return new Buff(encoder.B58chk.decode(data))
 }
 
 function parse_data (

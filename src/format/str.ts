@@ -1,5 +1,5 @@
 import { is_hex } from '../assert.js'
-import { type Endian } from '../types.js'
+import { Endian } from '../types.js'
 
 const ec  = new TextEncoder()
 const dc  = new TextDecoder()
@@ -55,12 +55,3 @@ export function bytesToHex (bytes : Uint8Array) : string {
   return chars
 }
 
-export const Hex = {
-  encode : bytesToHex,
-  decode : hexToBytes
-}
-
-export const Txt = {
-  encode : strToBytes,
-  decode : bytesToStr
-}
