@@ -1,4 +1,4 @@
-import { Buff } from '../../dist/module.mjs'
+import { Buff } from '../../dist/index.js'
 
 const test_hash = Buff.str('testing').digest.hex
 const rand_hash = Buff.random(32).hex
