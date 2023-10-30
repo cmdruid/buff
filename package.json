@@ -1,7 +1,7 @@
 {
   "name": "@cmdcode/buff",
   "type": "module",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "A swiss-army-knife of byte manipulation.",
   "author": "Christopher Scott",
   "license": "CC-BY-1.0",
@@ -38,11 +38,10 @@
   "main": "./dist/main.cjs",
   "unpkg": "./dist/browser.js",
   "scripts": {
-    "build": "tsc && rollup -c rollup.config.ts --configPlugin typescript",
-    "clean": "rm -rf dist/* coverage .nyc_output",
+    "build": "./build.sh",
     "scratch": "tsx test/scratch.ts",
     "test": "tsx test/tape.ts | tap-spec",
-    "release": "yarn clean && yarn test && yarn build"
+    "release": "yarn test && yarn build"
   },
   "dependencies": {
     "@noble/hashes": "^1.3.0",
