@@ -1,7 +1,7 @@
 {
   "name": "@cmdcode/buff",
   "type": "module",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "A swiss-army-knife of byte manipulation.",
   "author": "Christopher Scott",
   "license": "CC-BY-1.0",
