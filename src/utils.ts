@@ -1,13 +1,26 @@
+import { webcrypto } from 'crypto'
 import { within_size }   from './assert.js'
 import { Endian, Bytes } from './types.js'
 
-const { getRandomValues } = crypto ?? globalThis.crypto ?? window.crypto
+let cryptomod : any
+
+if (typeof webcrypto !== 'undefined') {
+  cryptomod = webcrypto
+} else if (typeof crypto !== 'undefined') {
+  cryptomod = crypto
+} else if (typeof globalThis?.crypto !== 'undefined') {
+  cryptomod = globalThis.crypto
+} else if (typeof window !== 'undefined') {
+  cryptomod = window.crypto
+} else {
+  throw new Error('Unable to detect web crypto module!')
+}
 
 export function random (size = 32) : Uint8Array {
-  if (typeof getRandomValues === 'function') {
-    return crypto.getRandomValues(new Uint8Array(size))
+  if (typeof cryptomod.getRandomValues === 'function') {
+    return cryptomod.getRandomValues(new Uint8Array(size))
   }
-  throw new Error('Crypto module missing getRandomValues!')
+  throw new Error('Web crypto module missing getRandomValues!')
 }
 
 export function is_hex (input : string) : boolean {

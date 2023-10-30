@@ -11,11 +11,13 @@
   <script>
     console.dir(window)
 
-    const { Buff } = window.buff_utils
+    const { Buff } = window.buff
 
-    const random = Buff.random(8).toHex()
+    const test_hash = Buff.str('testing').digest.hex
+    const rand_hash = Buff.random(32).hex
 
-    console.log(random)
+    console.log('test hash:', test_hash)
+    console.log('rand hash:', rand_hash)
   </script>
 </body>
 </html>
