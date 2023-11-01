@@ -1,8 +1,5 @@
 import { Buff } from '../src/index.js'
 
-const test_hash = Buff.str('testing').digest.hex
+const is_hex = Buff.is_hex('OP_1')
 
-const rand_hash = Buff.random(32).hex
-
-console.log('test hash:', test_hash)
-console.log('rand hash:', rand_hash)
+console.log(is_hex)

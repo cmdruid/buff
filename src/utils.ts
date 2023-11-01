@@ -1,4 +1,4 @@
-import { webcrypto } from 'crypto'
+import { webcrypto }     from 'crypto'
 import { within_size }   from './assert.js'
 import { Endian, Bytes } from './types.js'
 
@@ -25,17 +25,14 @@ export function random (size = 32) : Uint8Array {
 
 export function is_hex (input : string) : boolean {
   if (
-    input.match(/[^a-fA-f0-9]/) === null &&
+    input.match(/[^a-fA-F0-9]/) === null &&
     input.length % 2 === 0
   ) { return true }
   return false
 }
 
 export function is_bytes (input : any) : input is Bytes {
-  if (
-    typeof input === 'string' &&
-    is_hex(input)
-  ) {
+  if (typeof input === 'string' && is_hex(input)) {
     return true
   } else if (
     typeof input === 'number' ||
