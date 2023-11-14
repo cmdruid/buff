@@ -203,6 +203,14 @@ export class Buff extends Uint8Array {
     return Buff.join([ size, this ])
   }
 
+  toJSON () {
+    return this.hex
+  }
+
+  toString () {
+    return this.hex
+  }
+
   static from (data : Uint8Array | number[]) : Buff {
     return new Buff(Uint8Array.from(data))
   }
