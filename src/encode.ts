@@ -10,7 +10,7 @@ import {
 import {
   base58check,
   base64,
-  base64url,
+  base64urlnopad,
   bech32,
   bech32m
 } from '@scure/base'
@@ -36,8 +36,8 @@ export const Base64 = {
 }
 
 export const B64url = {
-  encode : (data : Uint8Array) => base64url.encode(data),
-  decode : (data : string)     => base64url.decode(data)
+  encode : (data : Uint8Array) => base64urlnopad.encode(data),
+  decode : (data : string)     => base64urlnopad.decode(data)
 }
 
 export const Bech32 = {
