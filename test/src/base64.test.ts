@@ -1,12 +1,11 @@
-import { Test }     from 'tape'
+import { Test }        from 'tape'
+import { randomBytes } from '@noble/hashes/utils'
 
 import {
   Base64,
   Hex,
   Txt
 } from '../../src/index.js'
-
-import * as util    from '../../src/utils.js'
 
 import test_vectors from './vectors/basex.json' assert { type: 'json' }
 
@@ -38,7 +37,7 @@ export default function base64Test(t : Test) {
     const results :string[][] = []
 
     for (let i = 0; i < rounds; i++) {
-      const random  = util.random(32)
+      const random  = randomBytes(32)
       const encoded = Base64.encode(random)
       const decoded = Base64.decode(encoded)
       results.push([ Hex.encode(decoded), Hex.encode(random) ])

@@ -1,4 +1,5 @@
-import { sha256 }  from '@noble/hashes/sha256'
+import { sha256 }      from '@noble/hashes/sha256'
+import { randomBytes } from '@noble/hashes/utils'
 
 import * as assert  from './assert.js'
 import * as encoder from './encode.js'
@@ -29,7 +30,7 @@ export class Buff extends Uint8Array {
   static is_equal = is_equal
 
   static random (size = 32) : Buff {
-    const rand = util.random(size)
+    const rand = randomBytes(size)
     return new Buff(rand, size)
   }
 

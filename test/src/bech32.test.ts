@@ -1,4 +1,5 @@
-import { Test } from 'tape'
+import { Test }        from 'tape'
+import { randomBytes } from '@noble/hashes/utils'
 
 import {
   Bech32,
@@ -67,7 +68,7 @@ export default function bech32Test(t : Test) {
 
     for (let i = 0; i < rounds; i++) {
       const version = Math.floor(Math.random())
-      const random  = util.random(32)
+      const random  = randomBytes(32)
       const words = (version === 1)
         ? Bech32m.to_words(random)
         : Bech32.to_words(random)

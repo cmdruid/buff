@@ -1,4 +1,5 @@
 import { Test } from 'tape'
+
 import { Buff, buffer } from '../../src/index.js'
 
 const number = 4294901760
